@@ -1,0 +1,12 @@
+stages:
+  - build
+
+build:
+  stage: build
+  image: harbor.oneitfarm.com/zhirenyun/docker:20.10-buildx
+  tags:
+    - aliyun-sh
+  script:
+    - docker buildx build -t $HARBOR_HOST/bifrost/capitalizone:$CI_COMMIT_REF_NAME --platform=linux/arm64,linux/amd64 . --push
+  only:
+    - tags

@@ -1,0 +1,1627 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/ca/intermediate_topology": {
+            "get": {
+                "description": "子CA拓扑",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "子CA拓扑",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/ca.IntermediateObject"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/overall_certs_count": {
+            "get": {
+                "description": "证书总数、根据分类划分的数量、对应服务数量",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "(p2)证书分类",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ca.OverallCertsCountResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/overall_expiry_certs": {
+            "get": {
+                "description": "证书已过期数量, 一周内过期数量, 1/3个月内过期数量, 3个月后过期数量",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "(p2)证书有效期",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ca.OverallExpiryCertsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/overall_units_enable_status": {
+            "get": {
+                "description": "已启用总数, 禁用总数, 对应服务数",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "(p2)启用情况",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ca.OverallUnitsEnableStatus"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/role_profiles": {
+            "get": {
+                "description": "环境隔离类型",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "(p1)环境隔离类型",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "只返回类型列表, 供搜索条件",
+                        "name": "short",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/upper_ca_intermediate_topology": {
+            "get": {
+                "description": "上层CA拓扑",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "上层CA拓扑",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/ca.IntermediateObject"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ca/workload_units": {
+            "get": {
+                "description": "CA 下 Units",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CA"
+                ],
+                "summary": "(p1)服务单元",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页数, 默认1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页数限制, 默认20",
+                        "name": "limit_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "UniqueID 查询",
+                        "name": "unique_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/helper.MSPNormalizeList"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/ca.WorkloadUnit"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/certleaf/cert_chain": {
+            "get": {
+                "description": "获取证书链信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "certleaf"
+                ],
+                "summary": "(p1)CertChain",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "展示 CA 自身证书链",
+                        "name": "self_cert",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "SN+AKI 查询指定证书",
+                        "name": "sn",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "SN+AKI 查询指定证书",
+                        "name": "aki",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/certleaf.LeafCert"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/certleaf/cert_chain_from_root": {
+            "get": {
+                "description": "Root视角下所有证书链",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "certleaf"
+                ],
+                "summary": "(p1)根视角证书链",
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/certleaf.RootCertChains"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/cert": {
+            "get": {
+                "description": "证书详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "证书 sn",
+                        "name": "sn",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "证书 aki",
+                        "name": "aki",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/schema.FullCert"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/certs": {
+            "get": {
+                "description": "证书列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p3)List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "证书类型 gateway/sidecar/standalone",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "根据UniqueID查询",
+                        "name": "unique_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "根据证书序列号查询",
+                        "name": "cert_sn",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "证书状态 good/revoked",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序，默认 issued_at desc",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "过期, 起始时间点",
+                        "name": "expiry_start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "过期, 结束时间点",
+                        "name": "expiry_end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分页参数, 默认 20",
+                        "name": "limit_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页数, 默认 1",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/helper.MSPNormalizeList"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/schema.SampleCert"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/forbid_new_certs": {
+            "post": {
+                "description": "禁止某个 UniqueID 申请证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "禁止申请证书",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.ForbidNewCertsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/forbid_unit": {
+            "post": {
+                "description": "吊销并禁止服务证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p1)吊销并禁止服务证书",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.ForbidUnitParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/recover": {
+            "post": {
+                "description": "恢复证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p3)Recover",
+                "parameters": [
+                    {
+                        "description": "sn+aki / unique_id 二选一",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.RecoverCertsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/recover_forbid_new_certs": {
+            "post": {
+                "description": "恢复允许某个 UniqueID 申请证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "恢复申请证书",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.ForbidNewCertsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/recover_unit": {
+            "post": {
+                "description": "恢复并允许服务证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p1)恢复并允许服务证书",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.ForbidUnitParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/lifecycle/revoke": {
+            "post": {
+                "description": "吊销证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p3)Revoke",
+                "parameters": [
+                    {
+                        "description": "sn+aki / unique_id 二选一",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.RevokeCertsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/units_certs_list": {
+            "get": {
+                "description": "服务证书列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p1)服务证书列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "查询 unique_id",
+                        "name": "unique_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "证书类型",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "过期, 起始时间点",
+                        "name": "expiry_start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "过期, 结束时间点",
+                        "name": "expiry_end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "是否禁用, 1禁用 2启用",
+                        "name": "is_forbid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分页参数, 默认 20",
+                        "name": "limit_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页数, 默认 1",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/workload.UnitsCertsItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/units_forbid_query": {
+            "get": {
+                "description": "查询 unique_id 是否被禁止申请证书",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "禁止申请证书查询",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "查询 unique_id 数组",
+                        "name": "unique_ids",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workload.UnitsForbidQueryResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workload/units_status": {
+            "post": {
+                "description": "服务对应状态查询",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workload"
+                ],
+                "summary": "(p1)服务对应状态查询",
+                "parameters": [
+                    {
+                        "description": "查询 unique_id 数组",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workload.UnitsStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": " ",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/helper.MSPNormalizeHTTPResponseBody"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.HTTPWrapErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ca.IntermediateObject": {
+            "type": "object",
+            "properties": {
+                "certs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.FullCert"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ca.IntermediateObject"
+                    }
+                },
+                "current": {
+                    "type": "boolean"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/schema.CaMetadata"
+                }
+            }
+        },
+        "ca.OverallCertsCountItem": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "description": "类别",
+                    "type": "string"
+                },
+                "total": {
+                    "description": "证书总数",
+                    "type": "integer"
+                },
+                "units_count": {
+                    "description": "服务数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "ca.OverallCertsCountResponse": {
+            "type": "object",
+            "properties": {
+                "certs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ca.OverallCertsCountItem"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ca.OverallExpiryCertsResponse": {
+            "type": "object",
+            "properties": {
+                "expiry_certs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ca.OverallExpiryGroup"
+                    }
+                },
+                "expiry_total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ca.OverallExpiryGroup": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ca.OverallUnitsEnableItem": {
+            "type": "object",
+            "properties": {
+                "certs_count": {
+                    "type": "integer"
+                },
+                "units_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ca.OverallUnitsEnableStatus": {
+            "type": "object",
+            "properties": {
+                "disable": {
+                    "$ref": "#/definitions/ca.OverallUnitsEnableItem"
+                },
+                "enable": {
+                    "$ref": "#/definitions/ca.OverallUnitsEnableItem"
+                }
+            }
+        },
+        "ca.RoleProfile": {
+            "type": "object",
+            "properties": {
+                "auth_key": {
+                    "type": "string"
+                },
+                "expiry_duration": {
+                    "type": "string"
+                },
+                "expiry_string": {
+                    "type": "string"
+                },
+                "is_ca": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "usages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "ca.WorkloadUnit": {
+            "type": "object",
+            "properties": {
+                "first_issued_at": {
+                    "description": "首次签发证书日期",
+                    "type": "string"
+                },
+                "forbidden": {
+                    "description": "是否被禁止",
+                    "type": "boolean"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "unique_id": {
+                    "type": "string"
+                },
+                "valid_num": {
+                    "description": "有效证书数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "certleaf.LeafCert": {
+            "type": "object",
+            "properties": {
+                "aki": {
+                    "type": "string"
+                },
+                "cert_info": {
+                    "$ref": "#/definitions/schema.Certificate"
+                },
+                "cert_str": {
+                    "description": "展示证书的详细信息",
+                    "type": "string"
+                },
+                "cn": {
+                    "type": "string"
+                },
+                "expiry": {
+                    "type": "string"
+                },
+                "issued_at": {
+                    "type": "string"
+                },
+                "issuer_cert": {
+                    "$ref": "#/definitions/certleaf.LeafCert"
+                },
+                "not_before": {
+                    "type": "string"
+                },
+                "o": {
+                    "type": "string"
+                },
+                "ou": {
+                    "type": "string"
+                },
+                "revoked_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "good"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "certleaf.RootCertChains": {
+            "type": "object",
+            "properties": {
+                "root": {
+                    "$ref": "#/definitions/ca.IntermediateObject"
+                }
+            }
+        },
+        "helper.HTTPWrapErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errCode": {
+                    "type": "string"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.MSPNormalizeHTTPResponseBody": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.MSPNormalizeList": {
+            "type": "object",
+            "properties": {
+                "list": {},
+                "paginate": {
+                    "$ref": "#/definitions/helper.MSPNormalizePaginate"
+                }
+            }
+        },
+        "helper.MSPNormalizePaginate": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schema.CaMetadata": {
+            "type": "object",
+            "properties": {
+                "o": {
+                    "type": "string"
+                },
+                "ou": {
+                    "type": "string"
+                },
+                "spiffe_id": {
+                    "$ref": "#/definitions/spiffe.IDGIdentity"
+                }
+            }
+        },
+        "schema.Certificate": {
+            "type": "object",
+            "properties": {
+                "authority_key_id": {
+                    "type": "string"
+                },
+                "issuer": {
+                    "type": "object"
+                },
+                "not_after": {
+                    "type": "string"
+                },
+                "not_before": {
+                    "type": "string"
+                },
+                "sans": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "serial_number": {
+                    "type": "string"
+                },
+                "sigalg": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "object"
+                },
+                "subject_key_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.FullCert": {
+            "type": "object",
+            "properties": {
+                "aki": {
+                    "type": "string"
+                },
+                "cert_info": {
+                    "$ref": "#/definitions/schema.Certificate"
+                },
+                "cert_str": {
+                    "description": "展示证书的详细信息",
+                    "type": "string"
+                },
+                "cn": {
+                    "type": "string"
+                },
+                "expiry": {
+                    "type": "string"
+                },
+                "issued_at": {
+                    "type": "string"
+                },
+                "not_before": {
+                    "type": "string"
+                },
+                "o": {
+                    "type": "string"
+                },
+                "ou": {
+                    "type": "string"
+                },
+                "revoked_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "good"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.SampleCert": {
+            "type": "object",
+            "properties": {
+                "aki": {
+                    "type": "string"
+                },
+                "cn": {
+                    "type": "string"
+                },
+                "expiry": {
+                    "type": "string"
+                },
+                "issued_at": {
+                    "type": "string"
+                },
+                "not_before": {
+                    "type": "string"
+                },
+                "o": {
+                    "type": "string"
+                },
+                "ou": {
+                    "type": "string"
+                },
+                "revoked_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "good"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "spiffe.IDGIdentity": {
+            "type": "object",
+            "properties": {
+                "cluster_id": {
+                    "type": "string"
+                },
+                "site_id": {
+                    "type": "string"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.ForbidNewCertsParams": {
+            "type": "object",
+            "properties": {
+                "unique_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "workload.ForbidUnitParams": {
+            "type": "object",
+            "required": [
+                "unique_id"
+            ],
+            "properties": {
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.RecoverCertsParams": {
+            "type": "object",
+            "properties": {
+                "aki": {
+                    "type": "string"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.RevokeCertsParams": {
+            "type": "object",
+            "properties": {
+                "aki": {
+                    "type": "string"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.UnitForbidQueryItem": {
+            "type": "object",
+            "properties": {
+                "forbid": {
+                    "type": "boolean"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.UnitsCertsItem": {
+            "type": "object",
+            "properties": {
+                "certs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.FullCert"
+                    }
+                },
+                "forbidden": {
+                    "type": "boolean"
+                },
+                "unique_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workload.UnitsForbidQueryResult": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/workload.UnitForbidQueryItem"
+                    }
+                }
+            }
+        },
+        "workload.UnitsStatusReq": {
+            "type": "object",
+            "required": [
+                "unique_ids"
+            ],
+            "properties": {
+                "unique_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
