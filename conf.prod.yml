@@ -10,10 +10,10 @@ log:
 redis:
   nodes: []
 
-# 级联 CA 配置项
+# Cascading CA configuration items
 keymanager:
   upper-ca: [] # https://user:password@server.ca
-  self-sign: false # 开启表示 ROOT CA
+  self-sign: false # Open representation ROOT CA
   csr-templates:
     root-ca:
       o: CI123 ROOT AUTHORITY
@@ -59,11 +59,6 @@ debug: false
 
 version: "0.1"
 
-# 监控指标
-metrics:
-  cpu-limit: 90 # cpu阈值
-  mem-limit: 80 # 内存阈值
-
-# ocsp配置
+# OCSP configuration
 ocsp:
-  cache-time: 60 # 缓存时间
+  cache-time: 60 # Cache time

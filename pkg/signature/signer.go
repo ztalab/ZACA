@@ -18,14 +18,14 @@ func NewSigner(priv crypto.PrivateKey) *Signer {
 	return &Signer{priv: priv}
 }
 
-// Sign 签名
+// Sign
 func (s *Signer) Sign(text []byte) (sign string, err error) {
 	switch priv := s.priv.(type) {
 	case *ecdsa.PrivateKey:
 		sign, err = EcdsaSign(priv, text)
 		return
 	case *rsa.PrivateKey:
-		// TODO 支持 RSA
+		// Todo supports RSA
 		return "", errors.New("algo not supported")
 	default:
 		return "", errors.New("algo not supported")
@@ -42,13 +42,13 @@ func NewVerifier(pub crypto.PublicKey) *Verifier {
 	return &Verifier{pub: pub}
 }
 
-// Verify 验证签名
+// Verify Verify signature
 func (v *Verifier) Verify(text []byte, sign string) (bool, error) {
 	switch pub := v.pub.(type) {
 	case *ecdsa.PublicKey:
 		return EcdsaVerify(text, sign, pub)
 	case *rsa.PublicKey:
-		// TODO 支持 RSA
+		// Todo supports RSA
 	default:
 	}
 	return false, errors.New("algo not supported")

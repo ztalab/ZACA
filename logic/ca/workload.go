@@ -1,4 +1,4 @@
-// Package ca workload 相关
+// Package ca workload Relevant
 package ca
 
 import (
@@ -9,21 +9,21 @@ import (
 	"github.com/tal-tech/go-zero/core/fx"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/util"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/util"
 )
 
 const AllCertsCacheKey = "all_certs_cache"
 
-// WorkloadUnit 以 UniqueID 划分的 Workload 单元
+// WorkloadUnit UniqueID Divided workload unit
 type WorkloadUnit struct {
 	Role          caclient.Role `json:"role"`
-	ValidNum      int           `json:"valid_num"`       // 有效证书数量
-	FirstIssuedAt time.Time     `json:"first_issued_at"` // 首次签发证书日期
+	ValidNum      int           `json:"valid_num"`       // Number of valid certificates
+	FirstIssuedAt time.Time     `json:"first_issued_at"` // Date of first issuance of certificate
 	UniqueId      string        `json:"unique_id"`
-	Forbidden     bool          `json:"forbidden"` // 是否被禁止
+	Forbidden     bool          `json:"forbidden"` // Is it prohibited
 }
 
 type WorkloadUnitsParams struct {
@@ -31,11 +31,11 @@ type WorkloadUnitsParams struct {
 	UniqueId       string
 }
 
-// WorkloadUnits CA 下 Units
-// 	返回目前活跃的 Units 及概要
+// WorkloadUnits CA Units
+// Return to currently active units and summary
 func (l *Logic) WorkloadUnits(params *WorkloadUnitsParams) ([]*WorkloadUnit, int64, error) {
 	db := l.db.Session(&gorm.Session{})
-	// 默认筛选没有过期的
+	// The default filter has no expired
 	db = db.Where("expiry > ?", time.Now()).
 		Where("status", "good")
 	db = db.Select(
@@ -52,7 +52,7 @@ func (l *Logic) WorkloadUnits(params *WorkloadUnitsParams) ([]*WorkloadUnit, int
 
 	certs, err := getCerts(db)
 	if err != nil {
-		return make([]*WorkloadUnit, 0), 0, errors.Wrap(err, "数据库查询错误")
+		return make([]*WorkloadUnit, 0), 0, errors.Wrap(err, "Database query error")
 	}
 
 	var i int
@@ -113,7 +113,7 @@ func getCerts(db *gorm.DB) ([]*model.Certificates, error) {
 	if !ok {
 		certs, _, err = dao.GetAllCertificates(db, 1, 10000, "issued_at desc")
 		if err != nil {
-			return nil, errors.Wrap(err, "数据库查询错误")
+			return nil, errors.Wrap(err, "Database query error")
 		}
 		util.MapCache.SetDefault(AllCertsCacheKey, certs)
 	}

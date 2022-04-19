@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	cf_csr "gitlab.oneitfarm.com/bifrost/cfssl/csr"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
+	cf_csr "github.com/ztalab/cfssl/csr"
+	"github.com/ztalab/cfssl/helpers"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/pkiutil"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/util"
+	"github.com/ztalab/ZACA/pkg/pkiutil"
+	"github.com/ztalab/ZACA/pkg/spiffe"
+	"github.com/ztalab/ZACA/util"
 )
 
 type SupportedSignatureAlgorithms string
@@ -74,7 +74,7 @@ type CertOptions struct {
 	SigAlg SupportedSignatureAlgorithms
 }
 
-// 生成 Private Key
+// Generate Private Key
 func GenKey(sigAlg SupportedSignatureAlgorithms) (priv interface{}, key []byte, err error) {
 	var block pem.Block
 	switch sigAlg {
@@ -112,8 +112,8 @@ func GenKey(sigAlg SupportedSignatureAlgorithms) (priv interface{}, key []byte, 
 	return priv, key, nil
 }
 
-// 通过 Key 生成 CSR
-// 支持自定义 CSR 请求
+// Generate CSR through key
+// Support custom CSR requests
 func GenCSR(key []byte, options CertOptions) ([]byte, error) {
 	template, _ := pkiutil.GenCSRTemplate(pkiutil.CertOptions{
 		Host:          options.Host,
@@ -157,7 +157,7 @@ func GenWorkloadCSR(key []byte, id *spiffe.IDGIdentity) ([]byte, error) {
 	})
 }
 
-// GenExtendWorkloadCSR 支持自定义 CSR 参数
+// GenExtendWorkloadCSR Support custom CSR parameters
 func GenExtendWorkloadCSR(key []byte, id *spiffe.IDGIdentity, csrConf CSRConf) ([]byte, error) {
 	hostnames := make([]string, 0)
 	if len(csrConf.SNIHostnames) > 0 {
@@ -181,7 +181,7 @@ func GenExtendWorkloadCSR(key []byte, id *spiffe.IDGIdentity, csrConf CSRConf) (
 	})
 }
 
-// GenCustomExtendCSR 生成业务自定义带扩展字段的 CSR
+// GenCustomExtendCSR Generate business custom CSR with extended fields
 func GenCustomExtendCSR(pemKey []byte, id *spiffe.IDGIdentity, opts *CertOptions, exts []pkix.Extension) ([]byte, error) {
 	if opts.Host == "" {
 		hostname, _ := os.Hostname()

@@ -2,25 +2,20 @@ package initer
 
 import (
 	"github.com/urfave/cli"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/certmanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/datastore"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/event"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/ca/datastore"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/vaultsecret"
+	"github.com/ztalab/cfssl/hook"
 	"log"
 	"os"
-	"runtime"
-
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/vaultinit"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/vaultsecret"
 
 	// ...
-	_ "gitlab.oneitfarm.com/bifrost/capitalizone/util"
+	_ "github.com/ztalab/ZACA/util"
 )
 
-// Init 初始化
+// Init Initialization
 func Init(c *cli.Context) error {
 	conf, err := parseConfigs(c)
 	if err != nil {
@@ -37,21 +32,14 @@ func Init(c *cli.Context) error {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	// Redis Connect
-	redisClient, err := redisDialer(&conf, l)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
 	i := &core.I{
-		Config:             &conf,
-		Logger:             l,
-		Db:                 db,
-		RedisClusterClient: redisClient,
+		Config: &conf,
+		Logger: l,
+		Db:     db,
 	}
 
 	if hook.EnableVaultStorage {
-		logger.Info("启用 Vault 加密储存引擎")
+		logger.Info("Enable vault encrypted storage engine")
 		vaultClient, err := vaultDialer(&conf, l)
 		if err != nil {
 			logger.Fatal(err)
@@ -62,23 +50,9 @@ func Init(c *cli.Context) error {
 	}
 
 	core.Is = i
-	// 初始化influxdb
+	// Initialize incluxdb
 	go influxdbDialer(&conf, l)
 
-	if core.Is.Config.Vault.Enabled {
-		vaultinit.Init()
-	} else {
-		go vaultinit.Init()
-	}
-
-	// 资源监控
-	if runtime.GOOS == "linux" && redisClient != nil {
-		// 初始化推送事件客户端
-		event.InitEventClient(redisClient)
-		InitMonitor()
-	}
-
-	// TODO 迁移
 	if os.Getenv("IS_MIGRATION") == "true" {
 		datastore.RunMigration()
 		os.Exit(1)
@@ -87,9 +61,6 @@ func Init(c *cli.Context) error {
 	if err := keymanager.InitKeeper(); err != nil {
 		return err
 	}
-	// Certs
-	_ = certmanager.NewCertCleaner()
-	// go cc.AutoGC()
 
 	logger.Info("success started.")
 	return nil

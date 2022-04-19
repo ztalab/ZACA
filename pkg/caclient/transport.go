@@ -8,18 +8,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/cloudflare/backoff"
-	"gitlab.oneitfarm.com/bifrost/cfssl/csr"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/ca"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/core"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/kp"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/roots"
+	"github.com/ztalab/cfssl/csr"
+	"github.com/ztalab/cfssl/transport/ca"
+	"github.com/ztalab/cfssl/transport/core"
+	"github.com/ztalab/cfssl/transport/kp"
+	"github.com/ztalab/cfssl/transport/roots"
 )
 
 // A Transport is capable of providing transport-layer security using
 // TLS.
 type Transport struct {
-	// 证书过期比率
-	// 总时间 / rate = 剩余时间
 	CertRefreshDurationRate int
 
 	// Provider contains a key management provider.
@@ -51,19 +49,18 @@ type Transport struct {
 	// error.
 	RevokeSoftFail bool
 
-	// 实验性, 测试使用
 	manualRevoke bool
 
 	logger *zap.SugaredLogger
 }
 
-// TLSClientAuthClientConfig 客户端 TLS 配置，动态更改证书
+// TLSClientAuthClientConfig Client TLS configuration, changing certificate dynamically
 func (tr *Transport) TLSClientAuthClientConfig(host string) (*tls.Config, error) {
 	return &tls.Config{
 		GetClientCertificate: func(info *tls.CertificateRequestInfo) (*tls.Certificate, error) {
 			cert, err := tr.GetCertificate()
 			if err != nil {
-				tr.logger.Errorf("客户端证书获取错误: %v", err)
+				tr.logger.Errorf("Client certificate acquisition error: %v", err)
 				return nil, err
 			}
 			return cert, nil
@@ -75,16 +72,16 @@ func (tr *Transport) TLSClientAuthClientConfig(host string) (*tls.Config, error)
 	}, nil
 }
 
-// TLSClientAuthServerConfig 服务器 TLS 配置，需要动态更改证书
+// TLSClientAuthServerConfig The server TLS configuration needs to be changed dynamically
 func (tr *Transport) TLSClientAuthServerConfig() (*tls.Config, error) {
 	return &tls.Config{
-		// 动态获取配置
+		// Get configuration dynamically
 		GetConfigForClient: func(info *tls.ClientHelloInfo) (*tls.Config, error) {
 			tlsConfig := &tls.Config{
 				GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
 					cert, err := tr.GetCertificate()
 					if err != nil {
-						tr.logger.Errorf("服务器证书获取错误: %v", err)
+						tr.logger.Errorf("Server certificate acquisition error: %v", err)
 						return nil, err
 					}
 					return cert, nil
@@ -107,7 +104,7 @@ func (tr *Transport) TLSServerConfig() (*tls.Config, error) {
 		GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
 			cert, err := tr.GetCertificate()
 			if err != nil {
-				tr.logger.Errorf("服务器证书获取错误: %v", err)
+				tr.logger.Errorf("Server certificate acquisition error: %v", err)
 				return nil, err
 			}
 			return cert, nil
@@ -120,8 +117,8 @@ func (tr *Transport) TLSServerConfig() (*tls.Config, error) {
 	}, nil
 }
 
-// Lifespan 返回一个证书剩余更换时间, 小于等于 0 则必须更换证书
-// remain 证书剩余总时长, ava 更新时间
+// Lifespan Returns the remaining replacement time of a certificate. If it is less than or equal to 0, the certificate must be replaced
+// remain Total remaining time of certificate, ava update time
 func (tr *Transport) Lifespan() (remain time.Duration, ava time.Duration) {
 	cert := tr.Provider.Certificate()
 	if cert == nil {
@@ -162,13 +159,13 @@ func (tr *Transport) RefreshKeys() (err error) {
 	select {
 	case err := <-ch:
 		return err
-	case <-time.After(5 * time.Second): // 5秒超时
+	case <-time.After(5 * time.Second): // 5 seconds timeout
 		return errors.New("RefreshKeys timeout")
 	}
 
 }
 
-// AsyncRefreshKeys 超时处理
+// AsyncRefreshKeys timeout handler
 func (tr *Transport) AsyncRefreshKeys() error {
 	if !tr.Provider.Ready() {
 		tr.logger.Debug("key and certificate aren't ready, loading")
@@ -180,22 +177,22 @@ func (tr *Transport) AsyncRefreshKeys() error {
 				kr = csr.NewKeyRequest()
 			}
 
-			// 创建新的私钥
-			tr.logger.Debug("创建新私钥")
+			// Create a new private key
+			tr.logger.Debug("Create a new private key")
 			err = tr.Provider.Generate(kr.Algo(), kr.Size())
 			if err != nil {
 				tr.logger.Debugf("failed to generate key: %v", err)
 				return err
 			}
-			tr.logger.Debug("创建成功")
+			tr.logger.Debug("Created successfully")
 		}
 	}
 
-	// 证书有效期
+	// Certificate validity
 	remain, lifespan := tr.Lifespan()
 	if remain < lifespan || lifespan <= 0 {
-		// 从填写的 request 结构体读取 CSR 配置
-		tr.logger.Debug("创建 csr")
+		// Read the CSR configuration from the filled in request structure
+		tr.logger.Debug("Create csr")
 		req, err := tr.Provider.CertificateRequest(tr.Identity.Request)
 		if err != nil {
 			tr.logger.Debugf("couldn't get a CSR: %v", err)
@@ -204,10 +201,9 @@ func (tr *Transport) AsyncRefreshKeys() error {
 			}
 			return err
 		}
-		tr.logger.Debug("创建 csr 完成")
+		tr.logger.Debug("Create CSR complete")
 
 		tr.logger.Debug("requesting certificate from CA")
-		// 调用 CA
 		cert, err := tr.CA.SignCSR(req)
 		if err != nil {
 			if tr.Provider.SignalFailure(err) {
@@ -276,8 +272,8 @@ func (tr *Transport) AutoUpdate() error {
 	}()
 	remain, nextUpdateAt := tr.Lifespan()
 	tr.logger.Debugf("attempting to refresh keypair")
-	if remain > nextUpdateAt { // 未到达轮换时间：轮换时间为证书有效期1/2
-		tr.logger.Debugf("未到达轮换时间 %v %v", remain, nextUpdateAt)
+	if remain > nextUpdateAt { // Failure to arrive at the rotation time: the rotation time is the certificate validity period of 1/2
+		tr.logger.Debugf("Rotation time not reached %v %v", remain, nextUpdateAt)
 		return nil
 	}
 	err := tr.RefreshKeys()

@@ -1,11 +1,11 @@
 package workload
 
 import (
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
+	"github.com/ztalab/ZACA/core"
 )
 
 type Logic struct {
@@ -16,6 +16,6 @@ type Logic struct {
 func NewLogic() *Logic {
 	return &Logic{
 		db:     core.Is.Db,
-		logger: v2log.Named("logic").SugaredLogger,
+		logger: logger.Named("logic").SugaredLogger,
 	}
 }

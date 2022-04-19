@@ -1,13 +1,12 @@
 package caclient
 
 import (
+	"github.com/ztalab/ZACA/pkg/logger"
 	"time"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keygen"
-	"gitlab.oneitfarm.com/bifrost/cfssl/csr"
-	cflog "gitlab.oneitfarm.com/bifrost/cfssl/log"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/core"
-	v2 "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/keygen"
+	"github.com/ztalab/cfssl/csr"
+	"github.com/ztalab/cfssl/transport/core"
 	"go.uber.org/zap"
 )
 
@@ -15,18 +14,10 @@ import (
 type Role string
 
 const (
-	// RoleSidecar ...
-	RoleSidecar Role = "sidecar"
-	// RoleGateway ...
-	RoleGateway Role = "gateway"
-	// RoleStandAlone ...
-	RoleStandAlone Role = "standalone"
+	// RoleDefault ...
+	RoleDefault Role = "default"
 	// RoleIntermediate ...
 	RoleIntermediate Role = "intermediate"
-	// RoleIDGRegistry 中台注册中心
-	RoleIDGRegistry Role = "idg-registry"
-	// RoleGatekeeper 哨兵
-	RoleGatekeeper Role = "gatekeeper"
 )
 
 // Conf ...
@@ -50,7 +41,7 @@ func NewCAI(opts ...OptionFunc) *CAInstance {
 		opt(conf)
 	}
 	conf.Logger.Sugar().Debugf("cai conf: %v", conf)
-	cflog.Logger = conf.Logger.Named("cfssl")
+	//cflog.Logger = conf.Logger.Named("cfssl")
 	return &CAInstance{
 		Conf: *conf,
 	}
@@ -125,5 +116,5 @@ var defaultConf = Conf{
 		},
 	},
 	RotateAfter: 5 * time.Minute,
-	Logger:      v2.N().Named("cai"),
+	Logger:      logger.N().Named("cai"),
 }

@@ -7,18 +7,18 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	"gitlab.oneitfarm.com/bifrost/cfssl/ocsp"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
-	"gitlab.oneitfarm.com/bifrost/go-toolbox/memorycacher"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/memorycacher"
+	"github.com/ztalab/cfssl/helpers"
+	"github.com/ztalab/cfssl/hook"
+	"github.com/ztalab/cfssl/ocsp"
 	"go.uber.org/zap"
 	stdocsp "golang.org/x/crypto/ocsp"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/events"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/events"
 )
 
 const (
@@ -39,7 +39,7 @@ var CertStatusIntMap = map[string]int{
 	CertStatusOCSPSignError:  502,
 }
 
-// SharedSources 进程 Cache 保障高效访问, 后续若访问量大可以考虑 Redis
+// SharedSources
 type SharedSources struct {
 	DB         *gorm.DB
 	Cache      *memorycacher.Cache
@@ -55,13 +55,13 @@ func NewSharedSources(signer ocsp.Signer) (*SharedSources, error) {
 	cacheTime := time.Duration(core.Is.Config.Ocsp.CacheTime)
 	return &SharedSources{
 		DB:         core.Is.Db,
-		Logger:     v2log.Named("ocsp-ss").SugaredLogger,
+		Logger:     logger.Named("ocsp-ss").SugaredLogger,
 		Cache:      memorycacher.New(cacheTime*time.Minute, memorycacher.NoExpiration, math.MaxInt64),
 		OcspSigner: signer,
 	}, nil
 }
 
-// Response 查询 DB 返回 OCSP 数据结构
+// Response
 func (ss *SharedSources) Response(req *stdocsp.Request) ([]byte, http.Header, error) {
 	if req == nil {
 		return nil, nil, errors.New("called with nil request")
@@ -77,32 +77,30 @@ func (ss *SharedSources) Response(req *stdocsp.Request) ([]byte, http.Header, er
 
 	if cachedResp, ok := ss.Cache.Get(strSN + aki); ok {
 		if resp, ok := cachedResp.([]byte); ok {
-			ss.Logger.With("sn", strSN, "aki", aki).Debugf("ocspResp cache 击中")
-			// TODO 获取 UniqueID
+			ss.Logger.With("sn", strSN, "aki", aki).Debugf("ocspResp cache")
 			AddMetricsPoint("", true, CertStatusUnknown)
 			return resp, nil, nil
 		}
-		ss.Logger.With("sn", strSN, "aki", aki).Errorf("cache 值解析错误")
+		ss.Logger.With("sn", strSN, "aki", aki).Errorf("cache Value parsing error")
 	}
 
-	// 数据库查询
+	// Database query
 	certRecord := &model.Certificates{}
 	if err := ss.DB.Where("serial_number = ? AND authority_key_identifier = ?", strSN, aki).First(certRecord).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			ss.Logger.With("sn", strSN, "aki", aki).Warnw("证书不存在")
+			ss.Logger.With("sn", strSN, "aki", aki).Warnw("Certificate does not exist")
 			AddMetricsPoint("", false, CertStatusNotFound)
 			return nil, nil, ocsp.ErrNotFound
 		}
-		ss.Logger.With("sn", strSN, "aki", aki).Errorf("证书获取错误: %v", err)
+		ss.Logger.With("sn", strSN, "aki", aki).Errorf("Certificate acquisition error: %v", err)
 		AddMetricsPoint("", false, CertStatusServerError)
 		return nil, nil, errors.Wrap(err, "server error")
 	}
 
-	// 从 vault 获取证书 PEM
 	if hook.EnableVaultStorage {
 		pem, err := core.Is.VaultSecret.GetCertPEM(strSN)
 		if err != nil {
-			ss.Logger.With("sn", strSN, "aki", aki).Warnf("Vault 获取错误: %v", err)
+			ss.Logger.With("sn", strSN, "aki", aki).Warnf("Vault Get error: %v", err)
 		} else {
 			certRecord.Pem = *pem
 		}
@@ -110,7 +108,7 @@ func (ss *SharedSources) Response(req *stdocsp.Request) ([]byte, http.Header, er
 
 	cert, err := helpers.ParseCertificatePEM([]byte(certRecord.Pem))
 	if err != nil {
-		ss.Logger.With("sn", strSN, "aki", aki).Errorf("证书 PEM 解析错误: %v", err)
+		ss.Logger.With("sn", strSN, "aki", aki).Errorf("Certificate PEM parsing error: %v", err)
 		AddMetricsPoint("", false, CertStatusCertParseError)
 		return nil, nil, errors.Wrap(err, "cert err")
 	}
@@ -124,7 +122,7 @@ func (ss *SharedSources) Response(req *stdocsp.Request) ([]byte, http.Header, er
 
 	ocspResp, err := ss.OcspSigner.Sign(*signReq)
 	if err != nil {
-		ss.Logger.With("sn", strSN, "aki", aki).Errorf("OCSP Sign 错误: %v", err)
+		ss.Logger.With("sn", strSN, "aki", aki).Errorf("OCSP Sign error: %v", err)
 		AddMetricsPoint(cert.Subject.CommonName, false, CertStatusOCSPSignError)
 		return nil, nil, errors.Wrap(err, "internal err")
 	}
@@ -137,7 +135,7 @@ func (ss *SharedSources) Response(req *stdocsp.Request) ([]byte, http.Header, er
 
 	ss.Cache.SetDefault(strSN+aki, ocspResp)
 
-	ss.Logger.With("sn", strSN, "aki", aki).Infof("OCSP 签名完成")
+	ss.Logger.With("sn", strSN, "aki", aki).Infof("OCSP Signature Complete")
 
 	AddMetricsPoint(cert.Subject.CommonName, false, CertStatusGood)
 	return ocspResp, nil, nil

@@ -7,12 +7,12 @@ import (
 
 	"github.com/mayocream/pki/pkg/x509util"
 	"github.com/pkg/errors"
-	cfCertInfo "gitlab.oneitfarm.com/bifrost/cfssl/certinfo"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
+	cfCertInfo "github.com/ztalab/cfssl/certinfo"
+	"github.com/ztalab/cfssl/helpers"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 )
 
 func GetFullCertByX509Cert(cert *x509.Certificate) *FullCert {
@@ -26,7 +26,7 @@ func GetFullCertByX509Cert(cert *x509.Certificate) *FullCert {
 			SN:  cert.SerialNumber.String(),
 			AKI: hex.EncodeToString(cert.SubjectKeyId),
 			CN:  cert.Subject.CommonName,
-			// TODO 加入证书标识获取 role
+			// TODO Join certificate ID acquisition role
 			NotBefore: cert.NotBefore,
 			Expiry:    cert.NotAfter,
 		},

@@ -1,13 +1,13 @@
-// Package datastore 数据储存
+// Package datastore Data storage
 package datastore
 
 import (
 	"errors"
+	"github.com/ztalab/ZACA/pkg/logger"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/vaultsecret"
-	v2 "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/pkg/vaultsecret"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -22,7 +22,7 @@ const (
 	PolicyMixed = "mix"
 )
 
-// DataStorer 数据储存
+// DataStorer Data storage
 type DataStorer struct {
 	logger      *zap.SugaredLogger
 	db          *gorm.DB
@@ -33,14 +33,14 @@ type DataStorer struct {
 // DefaultDataStorer ...
 func DefaultDataStorer() *DataStorer {
 	return &DataStorer{
-		logger:      v2.S().Named("datastore"),
+		logger:      logger.S().Named("datastore"),
 		db:          core.Is.Db,
 		vaultSecret: core.Is.VaultSecret,
 		policy:      PolicyMixed,
 	}
 }
 
-// GetWorkloadCertPEM 根据 SN 获取 Workload 证书
+// GetWorkloadCertPEM Obtain workload certificate according to SN
 func (ds *DataStorer) GetWorkloadCertPEM(sn string) ([]byte, error) {
 	getFromDB := func() ([]byte, error) {
 		certModel := new(model.Certificates)

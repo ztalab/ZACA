@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"github.com/urfave/cli"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/cmd"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/initer"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/cmd"
+	"github.com/ztalab/ZACA/initer"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	app.Version = "1.0.0"
 	app.Usage = "capitalizone"
 	app.Commands = []cli.Command{
-		newHttpCmd(ctx),
+		newApiCmd(ctx),
 		newTlsCmd(ctx),
 		newOcspCmd(ctx),
 	}
@@ -28,33 +28,33 @@ func main() {
 	}
 }
 
-// newHttpCmd 运行http服务
-func newHttpCmd(ctx context.Context) cli.Command {
+// newApiCmd Running API services
+func newApiCmd(ctx context.Context) cli.Command {
 	return cli.Command{
-		Name:  "http",
-		Usage: "运行http服务",
+		Name:  "api",
+		Usage: "Running API service",
 		Action: func(c *cli.Context) error {
 			return cmd.RunHttp(ctx)
 		},
 	}
 }
 
-// newTlsCmd 运行tls服务
+// newTlsCmd Running TLS service
 func newTlsCmd(ctx context.Context) cli.Command {
 	return cli.Command{
 		Name:  "tls",
-		Usage: "运行tls服务",
+		Usage: "Running TLS service",
 		Action: func(c *cli.Context) error {
 			return cmd.RunTls(ctx)
 		},
 	}
 }
 
-// newOcspCmd 运行tls服务
+// newOcspCmd Running OCSP service
 func newOcspCmd(ctx context.Context) cli.Command {
 	return cli.Command{
 		Name:  "ocsp",
-		Usage: "运行ocsp服务",
+		Usage: "Run OCSP service",
 		Action: func(c *cli.Context) error {
 			return cmd.RunOcsp(ctx)
 		},

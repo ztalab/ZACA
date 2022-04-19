@@ -3,14 +3,14 @@ package signature
 import (
 	"crypto/ecdsa"
 	"fmt"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keygen"
+	"github.com/ztalab/ZACA/pkg/keygen"
 	"testing"
 )
 
 func TestEcdsaSign(t *testing.T) {
 	priv, _, _ := keygen.GenKey(keygen.EcdsaSigAlg)
 	s := NewSigner(priv)
-	sign, err := s.Sign([]byte("测试"))
+	sign, err := s.Sign([]byte("Test"))
 	if err != nil {
 		panic(err)
 	}
@@ -18,7 +18,7 @@ func TestEcdsaSign(t *testing.T) {
 }
 
 func TestEcdsaVerify(t *testing.T) {
-	text := []byte("测试")
+	text := []byte("Test")
 	priv, _, _ := keygen.GenKey(keygen.EcdsaSigAlg)
 	s := NewSigner(priv)
 	sign, err := s.Sign(text)

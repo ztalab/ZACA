@@ -1,13 +1,13 @@
 package influxdb
 
-// Config 配置文件
+// Config configuration
 type Config struct {
-	Enable              bool   `yaml:"enable"` //服务开关
+	Enable              bool   `yaml:"enable"` //Service switch
 	Address             string `yaml:"address"`
 	Port                int    `yaml:"port"`
-	UDPAddress          string `yaml:"udp_address"` //influxdb 数据库的udp地址，ip:port
-	Database            string `yaml:"database"`    //数据库名称
-	Precision           string `yaml:"precision"`   //精度 n, u, ms, s, m or h
+	UDPAddress          string `yaml:"udp_address"` //influxdb UDP address of the database，ip:port
+	Database            string `yaml:"database"`    //Database name
+	Precision           string `yaml:"precision"`   //Accuracy n, u, ms, s, m or h
 	UserName            string `yaml:"username"`
 	Password            string `yaml:"password"`
 	MaxIdleConns        int    `yaml:"max-idle-conns"`
@@ -15,14 +15,14 @@ type Config struct {
 	IdleConnTimeout     int    `yaml:"idle-conn-timeout"`
 }
 
-// CustomConfig 自定义配置
+// CustomConfig Custom configuration
 type CustomConfig struct {
-	Enabled             bool   `yaml:"enabled"` //服务开关
+	Enabled             bool   `yaml:"enabled"` //Service switch
 	Address             string `yaml:"address"`
 	Port                int    `yaml:"port"`
-	UDPAddress          string `yaml:"udp_address"` //influxdb 数据库的udp地址，ip:port
-	Database            string `yaml:"database"`    //数据库名称
-	Precision           string `yaml:"precision"`   //精度 n, u, ms, s, m or h
+	UDPAddress          string `yaml:"udp_address"` //influxdb UDP address of the database，ip:port
+	Database            string `yaml:"database"`    //Database name
+	Precision           string `yaml:"precision"`   //Accuracy n, u, ms, s, m or h
 	UserName            string `yaml:"username"`
 	Password            string `yaml:"password"`
 	ReadUserName        string `yaml:"read-username"`

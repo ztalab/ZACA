@@ -6,9 +6,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/core"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/spiffe"
+	"github.com/ztalab/cfssl/transport/core"
 )
 
 // TLSGenerator ...
@@ -21,13 +21,13 @@ func NewTLSGenerator(cfg *tls.Config) *TLSGenerator {
 	return &TLSGenerator{Cfg: cfg}
 }
 
-// ExtraValidator 自定义验证函数, 在验证证书成功后执行
+// ExtraValidator User defined verification function, which is executed after the certificate is verified successfully
 type ExtraValidator func(identity *spiffe.IDGIdentity) error
 
-// BindExtraValidator 注册自定义验证函数
+// BindExtraValidator Register custom validation function
 func (tg *TLSGenerator) BindExtraValidator(validator ExtraValidator) {
 	vc := func(state tls.ConnectionState) error {
-		// 若没有证书, 会在上一阶段被阻断
+		// If there is no certificate, it will be blocked in the previous stage
 		if len(state.PeerCertificates) == 0 {
 			return nil
 		}
@@ -40,7 +40,7 @@ func (tg *TLSGenerator) BindExtraValidator(validator ExtraValidator) {
 	}
 	getServerTls := tg.Cfg.GetConfigForClient
 	if getServerTls != nil {
-		// 服务端动态获取
+		// Server dynamic acquisition
 		tg.Cfg.GetConfigForClient = func(info *tls.ClientHelloInfo) (*tls.Config, error) {
 			tlsCfg, err := getServerTls(info)
 			if err != nil {
@@ -54,7 +54,7 @@ func (tg *TLSGenerator) BindExtraValidator(validator ExtraValidator) {
 	}
 }
 
-// TLSConfig 获取 Golang 原生 TLS Config
+// TLSConfig Get golang native TLS config
 func (tg *TLSGenerator) TLSConfig() *tls.Config {
 	return tg.Cfg
 }
@@ -64,7 +64,7 @@ func (ex *Exchanger) ClientTLSConfig(host string) (*TLSGenerator, error) {
 	lo := ex.logger
 	lo.Debug("client tls started.")
 	if _, err := ex.Transport.GetCertificate(); err != nil {
-		return nil, errors.Wrap(err, "客户端证书获取错误")
+		return nil, errors.Wrap(err, "Client certificate acquisition error")
 	}
 	c, err := ex.Transport.TLSClientAuthClientConfig(host)
 	if err != nil {
@@ -74,7 +74,7 @@ func (ex *Exchanger) ClientTLSConfig(host string) (*TLSGenerator, error) {
 		if len(rawCerts) > 0 && len(verifiedChains) > 0 {
 			leaf, err := x509.ParseCertificate(rawCerts[0])
 			if err != nil {
-				lo.Errorf("leaf 证书解析错误: %v", err)
+				lo.Errorf("leaf Certificate parsing error: %v", err)
 				return err
 			}
 			if ok, err := ex.OcspFetcher.Validate(leaf, verifiedChains[0][1]); !ok {
@@ -91,7 +91,7 @@ func (ex *Exchanger) ServerHTTPSConfig() (*TLSGenerator, error) {
 	lo := ex.logger
 	lo.Debug("server tls started.")
 	if _, err := ex.Transport.GetCertificate(); err != nil {
-		return nil, errors.Wrap(err, "服务器证书获取错误")
+		return nil, errors.Wrap(err, "Server certificate acquisition error")
 	}
 	c, err := ex.Transport.TLSClientAuthServerConfig()
 	if err != nil {
@@ -102,7 +102,7 @@ func (ex *Exchanger) ServerHTTPSConfig() (*TLSGenerator, error) {
 			GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
 				cert, err := ex.Transport.GetCertificate()
 				if err != nil {
-					logger.Named("transport").Errorf("服务器证书获取错误: %v", err)
+					logger.Named("transport").Errorf("Server certificate acquisition error: %v", err)
 					return nil, err
 				}
 				return cert, nil
@@ -121,7 +121,7 @@ func (ex *Exchanger) ServerTLSConfig() (*TLSGenerator, error) {
 	lo := ex.logger
 	lo.Debug("server tls started.")
 	if _, err := ex.Transport.GetCertificate(); err != nil {
-		return nil, errors.Wrap(err, "服务器证书获取错误")
+		return nil, errors.Wrap(err, "Server certificate acquisition error")
 	}
 	c, err := ex.Transport.TLSClientAuthServerConfig()
 	if err != nil {
@@ -132,7 +132,7 @@ func (ex *Exchanger) ServerTLSConfig() (*TLSGenerator, error) {
 			GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
 				cert, err := ex.Transport.GetCertificate()
 				if err != nil {
-					logger.Named("transport").Errorf("服务器证书获取错误: %v", err)
+					logger.Named("transport").Errorf("Server certificate acquisition error: %v", err)
 					return nil, err
 				}
 				return cert, nil
@@ -143,7 +143,7 @@ func (ex *Exchanger) ServerTLSConfig() (*TLSGenerator, error) {
 				if len(rawCerts) > 0 && len(verifiedChains) > 0 {
 					leaf, err := x509.ParseCertificate(rawCerts[0])
 					if err != nil {
-						lo.Errorf("leaf 证书解析错误: %v", err)
+						lo.Errorf("leaf Certificate parsing error: %v", err)
 						return err
 					}
 					if ok, err := ex.OcspFetcher.Validate(leaf, verifiedChains[0][1]); !ok {

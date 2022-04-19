@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/helpers"
 )
 
 func getTrustCerts(path string) ([]*x509.Certificate, error) {
 	pemCerts, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("信任证书文件错误: %v", err)
+		return nil, fmt.Errorf("trust certificate file error: %v", err)
 	}
 	certs, err := helpers.ParseCertificatesPEM(pemCerts)
 	if err != nil {
-		return nil, fmt.Errorf("获取信任证书失败: %v", err)
+		return nil, fmt.Errorf("failed to get trust certificate: %v", err)
 	}
-	logger.Named("trust-certs").Infof("获取到信任证书数量: %v", len(certs))
+	logger.Named("trust-certs").Infof("number of trust certificates obtained: %v", len(certs))
 	return certs, nil
 }

@@ -14,5 +14,5 @@ var httpClient = http.Client{
 		MaxIdleConns:        50,
 		MaxIdleConnsPerHost: 50,
 	},
-	Timeout: 1 * time.Second, // 超时时间
+	Timeout: 1 * time.Second,
 }

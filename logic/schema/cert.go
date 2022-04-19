@@ -4,13 +4,13 @@ import (
 	"crypto/x509"
 	"time"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/certinfo"
+	"github.com/ztalab/cfssl/certinfo"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 )
 
-// SampleCert 证书列表 cert
+// SampleCert Certificate list cert
 type SampleCert struct {
 	SN        string        `mapstructure:"sn,omitempty" json:"sn"`
 	AKI       string        `mapstructure:"aki,omitempty" json:"aki"`
@@ -40,10 +40,10 @@ type Certificate struct {
 	RawPEM             string        `mapstructure:"-" json:"-"`
 }
 
-// 证书详情 cert
+// Certificate details cert
 type FullCert struct {
 	SampleCert
-	CertStr  string            `mapstructure:"cert_str,omitempty" json:"cert_str"` // 展示证书的详细信息
+	CertStr  string            `mapstructure:"cert_str,omitempty" json:"cert_str"` // Show certificate details
 	CertInfo *Certificate      `mapstructure:"cert_info,omitempty" json:"cert_info,omitempty"`
 	RawCert  *x509.Certificate `mapstructure:"-" json:"-"`
 }

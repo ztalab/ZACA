@@ -3,18 +3,18 @@ package caclient
 import (
 	"github.com/cloudflare/backoff"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keyprovider"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport"
-	"gitlab.oneitfarm.com/bifrost/cfssl/transport/roots"
+	"github.com/ztalab/ZACA/pkg/keyprovider"
+	"github.com/ztalab/ZACA/pkg/spiffe"
+	"github.com/ztalab/cfssl/hook"
+	"github.com/ztalab/cfssl/transport"
+	"github.com/ztalab/cfssl/transport/roots"
 	"go.uber.org/zap"
 	"net/url"
 	"reflect"
 )
 
 const (
-	// CertRefreshDurationRate 证书轮回时间率
+	// CertRefreshDurationRate Certificate cycle time rate
 	CertRefreshDurationRate int = 2
 )
 
@@ -31,7 +31,7 @@ type Exchanger struct {
 }
 
 func init() {
-	// CFSSL API Client 连接 API Server 不进行证书验证 (单向 TLS)
+	// Cfssl API client connects to API server without certificate verification (one-way TLS)
 	hook.ClientInsecureSkipVerify = true
 }
 
@@ -81,10 +81,10 @@ func (cai *CAInstance) NewExchanger(id *spiffe.IDGIdentity) (*Exchanger, error) 
 func (cai *CAInstance) NewTransport(id *spiffe.IDGIdentity, keyPEM []byte, certPEM []byte) (*Transport, error) {
 	l := cai.Logger.Sugar()
 
-	l.Debug("NewTransport 开始")
+	l.Debug("NewTransport Start")
 
 	if _, err := url.Parse(cai.CaAddr); err != nil {
-		return nil, errors.Wrap(err, "CA ADDR 错误")
+		return nil, errors.Wrap(err, "CA ADDR Error")
 	}
 
 	var tr = &Transport{
@@ -94,18 +94,17 @@ func (cai *CAInstance) NewTransport(id *spiffe.IDGIdentity, keyPEM []byte, certP
 		logger:                  l.Named("ca"),
 	}
 
-	l.Debugf("[NEW]: 证书轮换率: %v", tr.CertRefreshDurationRate)
+	l.Debugf("[NEW]: Certificate rotation rate: %v", tr.CertRefreshDurationRate)
 
-	l.Debug("roots 初始化")
+	l.Debug("roots Initialization")
 	store, err := roots.New(cai.CFIdentity.Roots)
 	if err != nil {
 		return nil, err
 	}
 	tr.TrustStore = store
 
-	l.Debug("client roots 初始化")
+	l.Debug("client roots Initialization")
 	if len(cai.CFIdentity.ClientRoots) > 0 {
-		// 如果 cai.CFIdentity.Roots 与cai.CFIdentity.ClientRoots 相同，则不重复请求
 		if !reflect.DeepEqual(cai.CFIdentity.Roots, cai.CFIdentity.ClientRoots) {
 			store, err = roots.New(cai.CFIdentity.ClientRoots)
 			if err != nil {
@@ -116,7 +115,7 @@ func (cai *CAInstance) NewTransport(id *spiffe.IDGIdentity, keyPEM []byte, certP
 		tr.ClientTrustStore = store
 	}
 
-	l.Debug("xkeyProvider 初始化")
+	l.Debug("xkeyProvider Initialization")
 	xkey, err := keyprovider.NewXKeyProvider(id)
 	if err != nil {
 		return nil, err
@@ -124,18 +123,18 @@ func (cai *CAInstance) NewTransport(id *spiffe.IDGIdentity, keyPEM []byte, certP
 
 	xkey.CSRConf = cai.CSRConf
 	if keyPEM != nil && certPEM != nil {
-		l.Debug("xkeyProvider 设置 keyPEM")
+		l.Debug("xkeyProvider set up keyPEM")
 		if err := xkey.SetPrivateKeyPEM(keyPEM); err != nil {
 			return nil, err
 		}
-		l.Debug("xkeyProvider 设置 certPEM")
+		l.Debug("xkeyProvider set up certPEM")
 		if err := xkey.SetCertificatePEM(certPEM); err != nil {
 			return nil, err
 		}
 	}
 	tr.Provider = xkey
 
-	l.Debug("CA 初始化")
+	l.Debug("CA Initialization")
 	tr.CA, err = transport.NewCA(cai.CFIdentity)
 	if err != nil {
 		return nil, err

@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/valyala/fasthttp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 	"net"
 	"time"
 )
@@ -78,7 +78,7 @@ func main() {
 
 func mTlsConfig() *tls.Config {
 	cai := caclient.NewCAI(
-		caclient.WithCAServer(caclient.RoleSidecar, *ca),
+		caclient.WithCAServer(caclient.RoleDefault, *ca),
 		caclient.WithOcspAddr(*ocspAddr))
 	ex, err := cai.NewExchanger(&spiffe.IDGIdentity{
 		SiteID:    "test_site",

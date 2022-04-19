@@ -1,4 +1,4 @@
-// Package workload 展示层
+// Package workload Display layer
 package workload
 
 import (
@@ -8,17 +8,17 @@ import (
 	"github.com/araddon/dateparse"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/schema"
 	"gorm.io/gorm"
 )
 
 type CertListParams struct {
-	// 查询条件
+	// query criteria
 	CertSN         string
 	Role, UniqueID string
-	// 分页条件
+	// Paging condition
 	Page, PageSize                 int
 	Status                         string
 	Order                          string
@@ -30,7 +30,7 @@ type CertListResult struct {
 	Total    int64
 }
 
-// CertList 获取证书列表
+// CertList Get certificate list
 func (l *Logic) CertList(params *CertListParams) (*CertListResult, error) {
 	query := l.db.Session(&gorm.Session{})
 	if params.CertSN != "" {
@@ -60,14 +60,14 @@ func (l *Logic) CertList(params *CertListParams) (*CertListResult, error) {
 	if params.ExpiryStartTime != "" {
 		date, err := dateparse.ParseAny(params.ExpiryStartTime)
 		if err != nil {
-			return nil, errors.Wrap(err, "过期时间错误")
+			return nil, errors.Wrap(err, "Expiration time error")
 		}
 		query = query.Where("expiry > ?", date)
 	}
 	if params.ExpiryEndTime != "" {
 		date, err := dateparse.ParseAny(params.ExpiryEndTime)
 		if err != nil {
-			return nil, errors.Wrap(err, "过期时间错误")
+			return nil, errors.Wrap(err, "Expiration time error")
 		}
 		query = query.Where("expiry < ?", date)
 	}
@@ -87,7 +87,7 @@ func (l *Logic) CertList(params *CertListParams) (*CertListResult, error) {
 
 	list, total, err := dao.GetAllCertificates(query, params.Page, params.PageSize, params.Order)
 	if err != nil {
-		return nil, errors.Wrap(err, "数据库查询错误")
+		return nil, errors.Wrap(err, "Database query error")
 	}
 	var result CertListResult
 	result.CertList = make([]*schema.FullCert, 0, len(list))
@@ -114,7 +114,7 @@ func (l *Logic) CertDetail(params *CertDetailParams) (*schema.FullCert, error) {
 		SerialNumber:           params.SN,
 		AuthorityKeyIdentifier: params.AKI,
 	}).First(&row).Error; err != nil {
-		return nil, errors.Wrap(err, "数据库查询错误")
+		return nil, errors.Wrap(err, "Database query error")
 	}
 	cert, err := schema.GetFullCertByModelCert(row)
 	if err != nil {

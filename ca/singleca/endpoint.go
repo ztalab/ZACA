@@ -6,24 +6,24 @@ import (
 	"net/url"
 	"strings"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/api"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/bundle"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/certinfo"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/crl"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/gencrl"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/generator"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/health"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/info"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/initca"
-	apiocsp "gitlab.oneitfarm.com/bifrost/cfssl/api/ocsp"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/scan"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/signhandler"
-	certsql "gitlab.oneitfarm.com/bifrost/cfssl/certdb/sql"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/api"
+	"github.com/ztalab/cfssl/api/bundle"
+	"github.com/ztalab/cfssl/api/certinfo"
+	"github.com/ztalab/cfssl/api/crl"
+	"github.com/ztalab/cfssl/api/gencrl"
+	"github.com/ztalab/cfssl/api/generator"
+	"github.com/ztalab/cfssl/api/health"
+	"github.com/ztalab/cfssl/api/info"
+	"github.com/ztalab/cfssl/api/initca"
+	apiocsp "github.com/ztalab/cfssl/api/ocsp"
+	"github.com/ztalab/cfssl/api/scan"
+	"github.com/ztalab/cfssl/api/signhandler"
+	certsql "github.com/ztalab/cfssl/certdb/sql"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/revoke"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/signer"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	"github.com/ztalab/ZACA/ca/revoke"
+	"github.com/ztalab/ZACA/ca/signer"
 )
 
 // V1APIPrefix is the prefix of all CFSSL V1 API Endpoints.
@@ -90,14 +90,14 @@ var endpoints = map[string]func() (http.Handler, error){
 		if s == nil {
 			return nil, errBadSigner
 		}
-		// Prefetch, 在初始化时运行, 保证证书在启动时被加载完成
+		// Prefetch, Run during initialization to ensure that the certificate is loaded at startup
 		if _, err := keymanager.GetKeeper().GetL3CachedTrustCerts(); err != nil {
-			logger.Fatal("证书获取错误: %v", err)
+			logger.Fatal("Certificate acquisition error: %v", err)
 		}
 		return info.NewTrustCertsHandler(s, func() []*x509.Certificate {
 			certs, err := keymanager.GetKeeper().GetL3CachedTrustCerts()
 			if err != nil {
-				logger.Errorf("Trust 证书获取错误: %v", err)
+				logger.Errorf("Trust Certificate acquisition error: %v", err)
 			}
 			return certs
 		})

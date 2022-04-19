@@ -5,10 +5,10 @@ import (
 	"crypto/tls"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/singleca"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	"github.com/ztalab/ZACA/ca/singleca"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// InitTlsServer 初始化Tls服务
+// InitTlsServer Initialize TLS service
 func InitTlsServer(ctx context.Context, handler *mux.Router) func() {
 	addr := core.Is.Config.HTTP.CaListen
 	tlsCfg := &tls.Config{
@@ -25,7 +25,7 @@ func InitTlsServer(ctx context.Context, handler *mux.Router) func() {
 			return keymanager.GetKeeper().GetCachedTLSKeyPair()
 		},
 		InsecureSkipVerify: true,
-		ClientAuth:         tls.NoClientCert, // 运行集群内客户端单向 TLS 获取
+		ClientAuth:         tls.NoClientCert,
 	}
 	srv := &http.Server{
 		Addr:         addr,
@@ -44,7 +44,7 @@ func InitTlsServer(ctx context.Context, handler *mux.Router) func() {
 		}
 	}()
 	if !core.Is.Config.Debug {
-		// 时序监控
+		// Timing monitoring
 		metrics := http.NewServeMux()
 		metrics.Handle("/metrics", promhttp.Handler())
 		metrics.HandleFunc("/debug/pprof/", pprof.Index)
@@ -81,7 +81,6 @@ func InitTlsServer(ctx context.Context, handler *mux.Router) func() {
 	}
 }
 
-// Run 运行服务
 func RunTls(ctx context.Context) error {
 	state := 1
 	sc := make(chan os.Signal, 1)
@@ -96,7 +95,7 @@ func RunTls(ctx context.Context) error {
 EXIT:
 	for {
 		sig := <-sc
-		logger.Infof("接收到信号[%s]", sig.String())
+		logger.Infof("Received signal[%s]", sig.String())
 		switch sig {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			state = 0
@@ -108,7 +107,7 @@ EXIT:
 	}
 
 	cleanFunc()
-	logger.Infof("Tls服务退出")
+	logger.Infof("TLS service exit")
 	time.Sleep(time.Second)
 	os.Exit(state)
 	return nil

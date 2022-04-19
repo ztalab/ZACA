@@ -17,13 +17,12 @@ definitions:
   ca.OverallCertsCountItem:
     properties:
       role:
-        description: 类别
         type: string
       total:
-        description: 证书总数
+        description: Total number of certificates
         type: integer
       units_count:
-        description: 服务数量
+        description: number of services
         type: integer
     type: object
   ca.OverallCertsCountResponse:
@@ -85,17 +84,17 @@ definitions:
   ca.WorkloadUnit:
     properties:
       first_issued_at:
-        description: 首次签发证书日期
+        description: Date of first issuance of certificate
         type: string
       forbidden:
-        description: 是否被禁止
+        description: Is it prohibited
         type: boolean
       role:
         type: string
       unique_id:
         type: string
       valid_num:
-        description: 有效证书数量
+        description: Number of valid certificates
         type: integer
     type: object
   certleaf.LeafCert:
@@ -105,7 +104,7 @@ definitions:
       cert_info:
         $ref: '#/definitions/schema.Certificate'
       cert_str:
-        description: 展示证书的详细信息
+        description: Show certificate details
         type: string
       cn:
         type: string
@@ -207,7 +206,7 @@ definitions:
       cert_info:
         $ref: '#/definitions/schema.Certificate'
       cert_str:
-        description: 展示证书的详细信息
+        description: Show certificate details
         type: string
       cn:
         type: string
@@ -341,7 +340,7 @@ info:
 paths:
   /ca/intermediate_topology:
     get:
-      description: 子CA拓扑
+      description: Sub-CA topology
       produces:
       - application/json
       responses:
@@ -364,12 +363,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: 子CA拓扑
+      summary: Sub-CA topology
       tags:
       - CA
   /ca/overall_certs_count:
     get:
-      description: 证书总数、根据分类划分的数量、对应服务数量
+      description: Total number of certificates, number by classification, number
+        of corresponding services
       produces:
       - application/json
       responses:
@@ -390,12 +390,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p2)证书分类
+      summary: (p2)Certificate classification
       tags:
       - CA
   /ca/overall_expiry_certs:
     get:
-      description: 证书已过期数量, 一周内过期数量, 1/3个月内过期数量, 3个月后过期数量
+      description: 'Number of certificates expired: within one week, within 1/3 months
+        and after 3 months'
       produces:
       - application/json
       responses:
@@ -416,12 +417,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p2)证书有效期
+      summary: (p2)Certificate validity
       tags:
       - CA
   /ca/overall_units_enable_status:
     get:
-      description: 已启用总数, 禁用总数, 对应服务数
+      description: Total enabled, total disabled, corresponding services
       produces:
       - application/json
       responses:
@@ -442,14 +443,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p2)启用情况
+      summary: (p2)Enabling condition
       tags:
       - CA
   /ca/role_profiles:
     get:
-      description: 环境隔离类型
+      description: Environmental isolation type
       parameters:
-      - description: 只返回类型列表, 供搜索条件
+      - description: Only a list of types is returned for search criteria
         in: query
         name: short
         type: boolean
@@ -475,12 +476,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)环境隔离类型
+      summary: (p1)Environmental isolation type
       tags:
       - CA
   /ca/upper_ca_intermediate_topology:
     get:
-      description: 上层CA拓扑
+      description: Upper CA topology
       produces:
       - application/json
       responses:
@@ -503,22 +504,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: 上层CA拓扑
+      summary: Upper CA topology
       tags:
       - CA
   /ca/workload_units:
     get:
-      description: CA 下 Units
+      description: CA Units
       parameters:
-      - description: 页数, 默认1
+      - description: Number of pages, default 1
         in: query
         name: page
         type: integer
-      - description: 页数限制, 默认20
+      - description: Page limit, default 20
         in: query
         name: limit_num
         type: integer
-      - description: UniqueID 查询
+      - description: UniqueID Query
         in: query
         name: unique_id
         type: string
@@ -549,22 +550,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)服务单元
+      summary: (p1)Service unit
       tags:
       - CA
   /certleaf/cert_chain:
     get:
-      description: 获取证书链信息
+      description: Get certificate chain information
       parameters:
-      - description: 展示 CA 自身证书链
+      - description: Show CA's own certificate chain
         in: query
         name: self_cert
         type: boolean
-      - description: SN+AKI 查询指定证书
+      - description: SN+AKI Query the specified certificate
         in: query
         name: sn
         type: string
-      - description: SN+AKI 查询指定证书
+      - description: SN+AKI Query the specified certificate
         in: query
         name: aki
         type: string
@@ -593,7 +594,7 @@ paths:
       - certleaf
   /certleaf/cert_chain_from_root:
     get:
-      description: Root视角下所有证书链
+      description: All certificate chains from the root Perspective
       produces:
       - application/json
       responses:
@@ -614,19 +615,19 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)根视角证书链
+      summary: (p1)Root view certificate chain
       tags:
       - certleaf
   /workload/cert:
     get:
-      description: 证书详情
+      description: Certificate details
       parameters:
-      - description: 证书 sn
+      - description: Certificate sn
         in: query
         name: sn
         required: true
         type: string
-      - description: 证书 aki
+      - description: Certificate aki
         in: query
         name: aki
         required: true
@@ -656,41 +657,41 @@ paths:
       - Workload
   /workload/certs:
     get:
-      description: 证书列表
+      description: Certificate list
       parameters:
-      - description: 证书类型 gateway/sidecar/standalone
+      - description: Certificate type default
         in: query
         name: role
         type: string
-      - description: 根据UniqueID查询
+      - description: Query by unique ID
         in: query
         name: unique_id
         type: string
-      - description: 根据证书序列号查询
+      - description: Query by certificate serial number
         in: query
         name: cert_sn
         type: string
-      - description: 证书状态 good/revoked
+      - description: Certificate status good/revoked
         in: query
         name: status
         type: string
-      - description: 排序，默认 issued_at desc
+      - description: Sort, default issued_at desc
         in: query
         name: order
         type: string
-      - description: 过期, 起始时间点
+      - description: Expiration, starting point
         in: query
         name: expiry_start_time
         type: string
-      - description: 过期, 结束时间点
+      - description: Expiration, end time point
         in: query
         name: expiry_end_time
         type: string
-      - description: 分页参数, 默认 20
+      - description: Paging parameters, default 20
         in: query
         name: limit_num
         type: integer
-      - description: 页数, 默认 1
+      - description: Number of pages, default 1
         in: query
         name: page
         type: integer
@@ -726,7 +727,7 @@ paths:
       - Workload
   /workload/lifecycle/forbid_new_certs:
     post:
-      description: 禁止某个 UniqueID 申请证书
+      description: Prohibit a uniqueID from requesting a certificate
       parameters:
       - description: ' '
         in: body
@@ -749,12 +750,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: 禁止申请证书
+      summary: Application for certificate is prohibited
       tags:
       - Workload
   /workload/lifecycle/forbid_unit:
     post:
-      description: 吊销并禁止服务证书
+      description: Revoke and prohibit service certificates
       parameters:
       - description: ' '
         in: body
@@ -777,14 +778,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)吊销并禁止服务证书
+      summary: (p1)Revoke and prohibit service certificates
       tags:
       - Workload
   /workload/lifecycle/recover:
     post:
-      description: 恢复证书
+      description: Restore certificate
       parameters:
-      - description: sn+aki / unique_id 二选一
+      - description: sn+aki / unique_id either-or
         in: body
         name: body
         required: true
@@ -810,7 +811,7 @@ paths:
       - Workload
   /workload/lifecycle/recover_forbid_new_certs:
     post:
-      description: 恢复允许某个 UniqueID 申请证书
+      description: Recovery allows a uniqueID to request a certificate
       parameters:
       - description: ' '
         in: body
@@ -833,12 +834,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: 恢复申请证书
+      summary: Resume application certificate
       tags:
       - Workload
   /workload/lifecycle/recover_unit:
     post:
-      description: 恢复并允许服务证书
+      description: Restore and allow service certificates
       parameters:
       - description: ' '
         in: body
@@ -861,14 +862,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)恢复并允许服务证书
+      summary: (p1)Restore and allow service certificates
       tags:
       - Workload
   /workload/lifecycle/revoke:
     post:
-      description: 吊销证书
+      description: revoked certificate
       parameters:
-      - description: sn+aki / unique_id 二选一
+      - description: sn+aki / unique_id pick one of two
         in: body
         name: body
         required: true
@@ -894,33 +895,33 @@ paths:
       - Workload
   /workload/units_certs_list:
     get:
-      description: 服务证书列表
+      description: List of service certificates
       parameters:
-      - description: 查询 unique_id
+      - description: Query unique_id
         in: query
         name: unique_id
         type: string
-      - description: 证书类型
+      - description: Certificate type
         in: query
         name: role
         type: string
-      - description: 过期, 起始时间点
+      - description: Expiration, starting point
         in: query
         name: expiry_start_time
         type: string
-      - description: 过期, 结束时间点
+      - description: Expiration, end time point
         in: query
         name: expiry_end_time
         type: string
-      - description: 是否禁用, 1禁用 2启用
+      - description: Disable, 1 disable, 2 enable
         in: query
         name: is_forbid
         type: integer
-      - description: 分页参数, 默认 20
+      - description: Paging parameters, default 20
         in: query
         name: limit_num
         type: integer
-      - description: 页数, 默认 1
+      - description: Number of pages, default 1
         in: query
         name: page
         type: integer
@@ -946,15 +947,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)服务证书列表
+      summary: (p1)List of service certificates
       tags:
       - Workload
   /workload/units_forbid_query:
     get:
-      description: 查询 unique_id 是否被禁止申请证书
+      description: Query unique_id Is it forbidden to apply for certificate
       parameters:
       - collectionFormat: multi
-        description: 查询 unique_id 数组
+        description: Query unique_ID array
         in: query
         items:
           type: string
@@ -981,14 +982,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: 禁止申请证书查询
+      summary: Prohibit applying for certificate query
       tags:
       - Workload
   /workload/units_status:
     post:
-      description: 服务对应状态查询
+      description: Service corresponding status query
       parameters:
-      - description: 查询 unique_id 数组
+      - description: Query unique_ID array
         in: body
         name: json
         required: true
@@ -1014,7 +1015,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helper.HTTPWrapErrorResponse'
-      summary: (p1)服务对应状态查询
+      summary: (p1)Service corresponding status query
       tags:
       - Workload
 swagger: "2.0"

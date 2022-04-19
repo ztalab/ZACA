@@ -4,10 +4,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/valyala/fasthttp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	cflog "gitlab.oneitfarm.com/bifrost/cfssl/log"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/spiffe"
+	"github.com/ztalab/cfssl/helpers"
+	cflog "github.com/ztalab/cfssl/log"
 	"net"
 	"net/http"
 	"os"
@@ -18,7 +18,7 @@ import (
 func TestMTls(t *testing.T) {
 	cflog.Level = cflog.LevelDebug
 	c := caclient.NewCAI(
-		caclient.WithCAServer(caclient.RoleSidecar, "https://127.0.0.1:8081"),
+		caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
 		caclient.WithOcspAddr("http://127.0.0.1:8082"))
 	serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
 		SiteID:    "test_site",
@@ -31,24 +31,24 @@ func TestMTls(t *testing.T) {
 		UniqueID:  "client1",
 	})
 	if err != nil {
-		t.Error("transport 错误: ", err)
+		t.Error("transport Error: ", err)
 	}
 
 	serverTls, err := serverEx.ServerTLSConfig()
 	if err != nil {
-		t.Error("服务器 tls 获取错误: ", err)
+		t.Error("Server TLS get error: ", err)
 	}
-	fmt.Println("------------- 服务器信任证书 --------------")
+	fmt.Println("------------- Server trust certificate --------------")
 	fmt.Println(string(helpers.EncodeCertificatesPEM(serverEx.Transport.ClientTrustStore.Certificates())))
-	fmt.Println("------------- END 服务器信任证书 --------------")
+	fmt.Println("------------- END Server trust certificate --------------")
 
 	clientTls, err := clientEx.ClientTLSConfig("")
 	if err != nil {
 		t.Error("client tls config get error: ", err)
 	}
-	fmt.Println("------------- 客户端信任证书 --------------")
+	fmt.Println("------------- Client trust certificate --------------")
 	fmt.Println(string(helpers.EncodeCertificatesPEM(clientEx.Transport.TrustStore.Certificates())))
-	fmt.Println("------------- END 客户端信任证书 --------------")
+	fmt.Println("------------- END Client trust certificate --------------")
 
 	go func() {
 		httpsServer(serverTls.TLSConfig())
@@ -60,10 +60,10 @@ func TestMTls(t *testing.T) {
 	for range messages {
 		resp, err := client.Get("https://127.0.0.1:8082/test111111")
 		if err != nil {
-			fmt.Fprint(os.Stderr, "请求失败: ", err)
+			fmt.Fprint(os.Stderr, "request was aborted: ", err)
 		}
 
-		fmt.Println("请求成功: ", resp.Status)
+		fmt.Println("Request succeeded: ", resp.Status)
 	}
 }
 
@@ -90,7 +90,7 @@ func httpsServer(cfg *tls.Config) {
 
 	if err := fasthttp.Serve(lnTls, func(ctx *fasthttp.RequestCtx) {
 		str := ctx.Request.String()
-		fmt.Println("服务器接收: ", str)
+		fmt.Println("Server reception: ", str)
 		ctx.SetStatusCode(200)
 		ctx.SetBody([]byte("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
 	}); err != nil {

@@ -10,17 +10,17 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/vaultsecret"
-	cfssl_client "gitlab.oneitfarm.com/bifrost/cfssl/api/client"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	"gitlab.oneitfarm.com/bifrost/cfssl/info"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
-	"gitlab.oneitfarm.com/bifrost/go-toolbox/memorycacher"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/schema"
+	"github.com/ztalab/ZACA/pkg/influxdb"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/memorycacher"
+	"github.com/ztalab/ZACA/pkg/vaultsecret"
+	cfssl_client "github.com/ztalab/cfssl/api/client"
+	"github.com/ztalab/cfssl/helpers"
+	"github.com/ztalab/cfssl/hook"
+	"github.com/ztalab/cfssl/info"
 	"gorm.io/gorm"
 )
 
@@ -28,12 +28,11 @@ import (
 type Keeper struct {
 	DB         *gorm.DB
 	cache      *memorycacher.Cache
-	logger     *v2log.Logger
+	logger     *logger.Logger
 	RootClient UpperClients
 }
 
 var (
-	// Std 单例
 	Std *Keeper
 )
 
@@ -60,11 +59,11 @@ func InitKeeper() error {
 		rootClients, err = NewUpperClients(core.Is.Config.Keymanager.UpperCa)
 	}
 	if err != nil {
-		return errors.Wrap(err, "upper client 创建错误")
+		return errors.Wrap(err, "upper client Create error")
 	}
 	Std = &Keeper{
 		DB:         db,
-		logger:     v2log.Named("keeper"),
+		logger:     logger.Named("keeper"),
 		cache:      memorycacher.New(time.Hour, memorycacher.NoExpiration, math.MaxInt64),
 		RootClient: rootClients,
 	}
@@ -75,7 +74,7 @@ func InitKeeper() error {
 func GetKeeper() *Keeper {
 	defer func() {
 		if err := recover(); err != nil {
-			v2log.Named("keeper").Fatal("未初始化")
+			logger.Named("keeper").Fatal("Uninitialized")
 		}
 	}()
 	return Std
@@ -88,10 +87,10 @@ func (k *Keeper) GetDBSelfKeyPairPEM() (key, cert []byte, err error) {
 		err = k.DB.Where("name = ?", SelfKeyPairName).Order("id desc").First(keyPair).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				k.logger.Warn("self 密钥与证书 not found")
+				k.logger.Warn("self Keys and certificates not found")
 				return nil, nil, err
 			}
-			k.logger.Errorf("self-pair 查询错误: %v", err)
+			k.logger.Errorf("self-pair query error: %v", err)
 			return nil, nil, err
 		}
 		if keyPair.PrivateKey.Valid {
@@ -105,10 +104,10 @@ func (k *Keeper) GetDBSelfKeyPairPEM() (key, cert []byte, err error) {
 	if hook.EnableVaultStorage {
 		certStr, keyStr, err := core.Is.VaultSecret.GetCertPEMKey(vaultsecret.CALocalStoreKey)
 		if err != nil {
-			k.logger.Errorf("vault 密钥与证书读取错误: %s", err)
+			k.logger.Errorf("vault Key and certificate read error: %s", err)
 			return nil, nil, err
 		}
-		core.Is.Logger.With("key", keyStr, "cert", certStr).Debugf("Vault 获取 CA KEYPAIR")
+		core.Is.Logger.With("key", keyStr, "cert", certStr).Debugf("Vault CA KEYPAIR")
 		key = []byte(*keyStr)
 		cert = []byte(*certStr)
 	}
@@ -120,12 +119,12 @@ func (k *Keeper) GetDBSelfKeyPairPEM() (key, cert []byte, err error) {
 func (k *Keeper) GetCachedTLSKeyPair() (*tls.Certificate, error) {
 	keyPEM, certPEM, err := k.GetCachedSelfKeyPairPEM()
 	if err != nil {
-		k.logger.Errorf("tls.Cert 获取出错： %v", err)
+		k.logger.Errorf("tls.Cert Get error： %v", err)
 		return nil, err
 	}
 	cert, err := tls.X509KeyPair(certPEM, keyPEM)
 	if err != nil {
-		k.logger.Errorf("tls.X509 出错: %v", err)
+		k.logger.Errorf("tls.X509 error: %v", err)
 		return nil, err
 	}
 	return &cert, nil
@@ -150,19 +149,19 @@ func (k *Keeper) GetCachedSelfKeyPair() (key crypto.Signer, cert *x509.Certifica
 
 	keyPEM, certPEM, err := k.GetCachedSelfKeyPairPEM()
 	if err != nil {
-		k.logger.Errorf("获取 cache keypair PEM 出错: %v", err)
+		k.logger.Errorf("Error getting cache keypair PEM: %v", err)
 		return
 	}
 	priv, err := helpers.ParsePrivateKeyPEM(keyPEM)
 	if err != nil {
-		k.logger.With("key", string(keyPEM)).Errorf("证书 KEY 解析错误: %v", err)
+		k.logger.With("key", string(keyPEM)).Errorf("Certificate key parsing error: %v", err)
 		return
 	}
 	key = priv
 
 	cert, err = helpers.ParseCertificatePEM(certPEM)
 	if err != nil {
-		k.logger.With("cert", string(certPEM)).Errorf("证书 PEM 解析错误: %v", err)
+		k.logger.With("cert", string(certPEM)).Errorf("Certificate PEM parsing error: %v", err)
 		return
 	}
 
@@ -204,23 +203,21 @@ func (k *Keeper) SetKeyPairPEM(key, cert []byte) error {
 		UpdatedAt:   time.Now(),
 	}
 	if hook.EnableVaultStorage {
-		// 只允许数据库储存 Cert
-		// Key 只允许储存在 Vault 总
 		keyPair.PrivateKey = sql.NullString{String: "", Valid: true}
 		if err := core.Is.VaultSecret.StoreCertPEMKey(vaultsecret.CALocalStoreKey, string(cert), string(key)); err != nil {
-			k.logger.Errorf("Vault 写入 ca local store 错误: %s", err)
+			k.logger.Errorf("Vault write CA local store error: %s", err)
 			return err
 		}
 	}
 	if err := k.DB.Create(keyPair).Error; err != nil {
-		k.logger.Errorf("数据库插入错误: %v", err)
+		k.logger.Errorf("Database insert error: %v", err)
 		return err
 	}
 	k.cache.Flush()
 	return nil
 }
 
-// GetL3CachedTrustCerts 多级缓存信任证书, 进程内存 > DB > 远程
+// GetL3CachedTrustCerts Memory > multi level cache > remote process > certificate
 func (k *Keeper) GetL3CachedTrustCerts() (certs []*x509.Certificate, err error) {
 	if cachedCerts, ok := k.cache.Get(cacheTrusts); ok {
 		if v, ok := cachedCerts.([]*x509.Certificate); ok {
@@ -236,45 +233,43 @@ func (k *Keeper) GetL3CachedTrustCerts() (certs []*x509.Certificate, err error) 
 				k.cache.SetDefault(cacheTrusts, certs)
 				return certs, nil
 			}
-			k.logger.Errorf("DB Trust 证书解析错误: %v", err)
+			k.logger.Errorf("DB Trust Certificate parsing error: %v", err)
 		}
 
 		if dbErr != nil && !errors.Is(dbErr, gorm.ErrRecordNotFound) {
-			k.logger.Errorf("DB 获取 Trust 证书错误: %v", err)
+			k.logger.Errorf("DB get trust certificate error: %v", err)
 		}
 	}
 
 	if hook.EnableVaultStorage {
 		certsPEM, err := core.Is.VaultSecret.GetCertPEM(vaultsecret.CATructCertsKey)
 		if err != nil {
-			k.logger.Errorf("Vault 获取 Trust 证书错误: %s", err)
+			k.logger.Errorf("Vault get trust certificate error: %s", err)
 		}
 		certs, err := helpers.ParseCertificatesPEM([]byte(*certsPEM))
 		if err == nil {
 			k.cache.SetDefault(cacheTrusts, certs)
 			return certs, nil
 		}
-		k.logger.Errorf("Vault Trust 证书解析错误: %v", err)
+		k.logger.Errorf("Vault Trust Certificate parsing error: %v", err)
 	}
 
 	certs, err = k.GetRemoteTrustCerts()
 	if err != nil {
-		k.logger.Errorf("远程获取 Trust 证书出错: %v", err)
+		k.logger.Errorf("Error getting trust certificate remotely: %v", err)
 		return nil, err
 	}
 	if len(certs) > 0 {
-		// 协程运行
-		// TODO 定时获取最新 Remote Trust 证书插入到数据库
 		go func() {
 			if err := k.saveTrustCerts(certs); err != nil {
-				k.logger.Errorf("certs 储存错误: %s", err)
+				k.logger.Errorf("certs Storage error: %s", err)
 			}
 		}()
 	}
 	return certs, nil
 }
 
-// GetRemoteTrustCerts 获取远程信任证书 (包含 ROOT 证书, 中间 CA 证书)
+// GetRemoteTrustCerts Obtain remote trust certificate (including root certificate and intermediate CA certificate)
 func (k *Keeper) GetRemoteTrustCerts() (certs []*x509.Certificate, err error) {
 	if core.Is.Config.Keymanager.SelfSign {
 		return
@@ -293,7 +288,6 @@ func (k *Keeper) GetRemoteTrustCerts() (certs []*x509.Certificate, err error) {
 			core.Is.Metrics.AddPoint(&influxdb.MetricsData{
 				Measurement: schema.MetricsUpperCaInfo,
 				Fields: map[string]interface{}{
-					// TODO 请求耗时
 					"trust_certs_num": len(infoResp.TrustCertificates) + 1,
 				},
 				Tags: map[string]string{
@@ -306,7 +300,7 @@ func (k *Keeper) GetRemoteTrustCerts() (certs []*x509.Certificate, err error) {
 		return nil
 	})
 	if err != nil {
-		k.logger.Errorf("获取 Root 证书错误: %s", err)
+		k.logger.Errorf("Error getting root certificate: %s", err)
 		return nil, err
 	}
 
@@ -316,7 +310,7 @@ func (k *Keeper) GetRemoteTrustCerts() (certs []*x509.Certificate, err error) {
 	for _, certStr := range resp.TrustCertificates {
 		cert, err := helpers.ParseCertificatePEM([]byte(certStr))
 		if err != nil {
-			k.logger.Errorf("ROOT 证书解析错误: %v", err)
+			k.logger.Errorf("ROOT Certificate parsing error: %v", err)
 			return nil, err
 		}
 		certsMap[cert.SerialNumber.String()] = cert
@@ -340,15 +334,15 @@ func (k *Keeper) saveTrustCerts(certs []*x509.Certificate) error {
 	if hook.EnableVaultStorage {
 		trustKeypair.Certificate = sql.NullString{String: "", Valid: true}
 		if err := core.Is.VaultSecret.StoreCertPEM(vaultsecret.CATructCertsKey, string(certsPEM)); err != nil {
-			k.logger.Errorf("vault 储存 trust certs 错误: %s", err)
+			k.logger.Errorf("vault Error saving trust certs: %s", err)
 			return err
 		}
 	}
-	// 这里插入而不是更新, 保证每次都有记录
+	// Insert here instead of update to ensure that there are records every time
 	if err := k.DB.Create(trustKeypair).Error; err != nil {
-		k.logger.Errorf("数据库插入错误: %v", err)
+		k.logger.Errorf("Database insert error: %v", err)
 		return err
 	}
-	k.logger.With("num", len(certs)).Infof("Trust 证书插入到数据库")
+	k.logger.With("num", len(certs)).Infof("Trust Insert certificate into database")
 	return nil
 }

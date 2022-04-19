@@ -6,14 +6,14 @@
     "paths": {
         "/ca/intermediate_topology": {
             "get": {
-                "description": "子CA拓扑",
+                "description": "Sub-CA topology",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "子CA拓扑",
+                "summary": "Sub-CA topology",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -53,14 +53,14 @@
         },
         "/ca/overall_certs_count": {
             "get": {
-                "description": "证书总数、根据分类划分的数量、对应服务数量",
+                "description": "Total number of certificates, number by classification, number of corresponding services",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "(p2)证书分类",
+                "summary": "(p2)Certificate classification",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -97,14 +97,14 @@
         },
         "/ca/overall_expiry_certs": {
             "get": {
-                "description": "证书已过期数量, 一周内过期数量, 1/3个月内过期数量, 3个月后过期数量",
+                "description": "Number of certificates expired: within one week, within 1/3 months and after 3 months",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "(p2)证书有效期",
+                "summary": "(p2)Certificate validity",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -141,14 +141,14 @@
         },
         "/ca/overall_units_enable_status": {
             "get": {
-                "description": "已启用总数, 禁用总数, 对应服务数",
+                "description": "Total enabled, total disabled, corresponding services",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "(p2)启用情况",
+                "summary": "(p2)Enabling condition",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -185,18 +185,18 @@
         },
         "/ca/role_profiles": {
             "get": {
-                "description": "环境隔离类型",
+                "description": "Environmental isolation type",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "(p1)环境隔离类型",
+                "summary": "(p1)Environmental isolation type",
                 "parameters": [
                     {
                         "type": "boolean",
-                        "description": "只返回类型列表, 供搜索条件",
+                        "description": "Only a list of types is returned for search criteria",
                         "name": "short",
                         "in": "query"
                     }
@@ -240,14 +240,14 @@
         },
         "/ca/upper_ca_intermediate_topology": {
             "get": {
-                "description": "上层CA拓扑",
+                "description": "Upper CA topology",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "上层CA拓扑",
+                "summary": "Upper CA topology",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -287,30 +287,30 @@
         },
         "/ca/workload_units": {
             "get": {
-                "description": "CA 下 Units",
+                "description": "CA Units",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "CA"
                 ],
-                "summary": "(p1)服务单元",
+                "summary": "(p1)Service unit",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页数, 默认1",
+                        "description": "Number of pages, default 1",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "页数限制, 默认20",
+                        "description": "Page limit, default 20",
                         "name": "limit_num",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "UniqueID 查询",
+                        "description": "UniqueID Query",
                         "name": "unique_id",
                         "in": "query"
                     }
@@ -366,7 +366,7 @@
         },
         "/certleaf/cert_chain": {
             "get": {
-                "description": "获取证书链信息",
+                "description": "Get certificate chain information",
                 "produces": [
                     "application/json"
                 ],
@@ -377,19 +377,19 @@
                 "parameters": [
                     {
                         "type": "boolean",
-                        "description": "展示 CA 自身证书链",
+                        "description": "Show CA's own certificate chain",
                         "name": "self_cert",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "SN+AKI 查询指定证书",
+                        "description": "SN+AKI Query the specified certificate",
                         "name": "sn",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "SN+AKI 查询指定证书",
+                        "description": "SN+AKI Query the specified certificate",
                         "name": "aki",
                         "in": "query"
                     }
@@ -430,14 +430,14 @@
         },
         "/certleaf/cert_chain_from_root": {
             "get": {
-                "description": "Root视角下所有证书链",
+                "description": "All certificate chains from the root Perspective",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "certleaf"
                 ],
-                "summary": "(p1)根视角证书链",
+                "summary": "(p1)Root view certificate chain",
                 "responses": {
                     "200": {
                         "description": " ",
@@ -474,7 +474,7 @@
         },
         "/workload/cert": {
             "get": {
-                "description": "证书详情",
+                "description": "Certificate details",
                 "produces": [
                     "application/json"
                 ],
@@ -485,14 +485,14 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "证书 sn",
+                        "description": "Certificate sn",
                         "name": "sn",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "证书 aki",
+                        "description": "Certificate aki",
                         "name": "aki",
                         "in": "query",
                         "required": true
@@ -534,7 +534,7 @@
         },
         "/workload/certs": {
             "get": {
-                "description": "证书列表",
+                "description": "Certificate list",
                 "produces": [
                     "application/json"
                 ],
@@ -545,55 +545,55 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "证书类型 gateway/sidecar/standalone",
+                        "description": "Certificate type default",
                         "name": "role",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "根据UniqueID查询",
+                        "description": "Query by unique ID",
                         "name": "unique_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "根据证书序列号查询",
+                        "description": "Query by certificate serial number",
                         "name": "cert_sn",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "证书状态 good/revoked",
+                        "description": "Certificate status good/revoked",
                         "name": "status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "排序，默认 issued_at desc",
+                        "description": "Sort, default issued_at desc",
                         "name": "order",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "过期, 起始时间点",
+                        "description": "Expiration, starting point",
                         "name": "expiry_start_time",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "过期, 结束时间点",
+                        "description": "Expiration, end time point",
                         "name": "expiry_end_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "分页参数, 默认 20",
+                        "description": "Paging parameters, default 20",
                         "name": "limit_num",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "页数, 默认 1",
+                        "description": "Number of pages, default 1",
                         "name": "page",
                         "in": "query"
                     }
@@ -649,14 +649,14 @@
         },
         "/workload/lifecycle/forbid_new_certs": {
             "post": {
-                "description": "禁止某个 UniqueID 申请证书",
+                "description": "Prohibit a uniqueID from requesting a certificate",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "禁止申请证书",
+                "summary": "Application for certificate is prohibited",
                 "parameters": [
                     {
                         "description": " ",
@@ -692,14 +692,14 @@
         },
         "/workload/lifecycle/forbid_unit": {
             "post": {
-                "description": "吊销并禁止服务证书",
+                "description": "Revoke and prohibit service certificates",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "(p1)吊销并禁止服务证书",
+                "summary": "(p1)Revoke and prohibit service certificates",
                 "parameters": [
                     {
                         "description": " ",
@@ -735,7 +735,7 @@
         },
         "/workload/lifecycle/recover": {
             "post": {
-                "description": "恢复证书",
+                "description": "Restore certificate",
                 "produces": [
                     "application/json"
                 ],
@@ -745,7 +745,7 @@
                 "summary": "(p3)Recover",
                 "parameters": [
                     {
-                        "description": "sn+aki / unique_id 二选一",
+                        "description": "sn+aki / unique_id either-or",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -778,14 +778,14 @@
         },
         "/workload/lifecycle/recover_forbid_new_certs": {
             "post": {
-                "description": "恢复允许某个 UniqueID 申请证书",
+                "description": "Recovery allows a uniqueID to request a certificate",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "恢复申请证书",
+                "summary": "Resume application certificate",
                 "parameters": [
                     {
                         "description": " ",
@@ -821,14 +821,14 @@
         },
         "/workload/lifecycle/recover_unit": {
             "post": {
-                "description": "恢复并允许服务证书",
+                "description": "Restore and allow service certificates",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "(p1)恢复并允许服务证书",
+                "summary": "(p1)Restore and allow service certificates",
                 "parameters": [
                     {
                         "description": " ",
@@ -864,7 +864,7 @@
         },
         "/workload/lifecycle/revoke": {
             "post": {
-                "description": "吊销证书",
+                "description": "revoked certificate",
                 "produces": [
                     "application/json"
                 ],
@@ -874,7 +874,7 @@
                 "summary": "(p3)Revoke",
                 "parameters": [
                     {
-                        "description": "sn+aki / unique_id 二选一",
+                        "description": "sn+aki / unique_id pick one of two",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -907,54 +907,54 @@
         },
         "/workload/units_certs_list": {
             "get": {
-                "description": "服务证书列表",
+                "description": "List of service certificates",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "(p1)服务证书列表",
+                "summary": "(p1)List of service certificates",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "查询 unique_id",
+                        "description": "Query unique_id",
                         "name": "unique_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "证书类型",
+                        "description": "Certificate type",
                         "name": "role",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "过期, 起始时间点",
+                        "description": "Expiration, starting point",
                         "name": "expiry_start_time",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "过期, 结束时间点",
+                        "description": "Expiration, end time point",
                         "name": "expiry_end_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "是否禁用, 1禁用 2启用",
+                        "description": "Disable, 1 disable, 2 enable",
                         "name": "is_forbid",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "分页参数, 默认 20",
+                        "description": "Paging parameters, default 20",
                         "name": "limit_num",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "页数, 默认 1",
+                        "description": "Number of pages, default 1",
                         "name": "page",
                         "in": "query"
                     }
@@ -998,14 +998,14 @@
         },
         "/workload/units_forbid_query": {
             "get": {
-                "description": "查询 unique_id 是否被禁止申请证书",
+                "description": "Query unique_id Is it forbidden to apply for certificate",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "禁止申请证书查询",
+                "summary": "Prohibit applying for certificate query",
                 "parameters": [
                     {
                         "type": "array",
@@ -1013,7 +1013,7 @@
                             "type": "string"
                         },
                         "collectionFormat": "multi",
-                        "description": "查询 unique_id 数组",
+                        "description": "Query unique_ID array",
                         "name": "unique_ids",
                         "in": "query",
                         "required": true
@@ -1055,17 +1055,17 @@
         },
         "/workload/units_status": {
             "post": {
-                "description": "服务对应状态查询",
+                "description": "Service corresponding status query",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Workload"
                 ],
-                "summary": "(p1)服务对应状态查询",
+                "summary": "(p1)Service corresponding status query",
                 "parameters": [
                     {
-                        "description": "查询 unique_id 数组",
+                        "description": "Query unique_ID array",
                         "name": "json",
                         "in": "body",
                         "required": true,
@@ -1137,15 +1137,14 @@
             "type": "object",
             "properties": {
                 "role": {
-                    "description": "类别",
                     "type": "string"
                 },
                 "total": {
-                    "description": "证书总数",
+                    "description": "Total number of certificates",
                     "type": "integer"
                 },
                 "units_count": {
-                    "description": "服务数量",
+                    "description": "number of services",
                     "type": "integer"
                 }
             }
@@ -1241,11 +1240,11 @@
             "type": "object",
             "properties": {
                 "first_issued_at": {
-                    "description": "首次签发证书日期",
+                    "description": "Date of first issuance of certificate",
                     "type": "string"
                 },
                 "forbidden": {
-                    "description": "是否被禁止",
+                    "description": "Is it prohibited",
                     "type": "boolean"
                 },
                 "role": {
@@ -1255,7 +1254,7 @@
                     "type": "string"
                 },
                 "valid_num": {
-                    "description": "有效证书数量",
+                    "description": "Number of valid certificates",
                     "type": "integer"
                 }
             }
@@ -1270,7 +1269,7 @@
                     "$ref": "#/definitions/schema.Certificate"
                 },
                 "cert_str": {
-                    "description": "展示证书的详细信息",
+                    "description": "Show certificate details",
                     "type": "string"
                 },
                 "cn": {
@@ -1425,7 +1424,7 @@
                     "$ref": "#/definitions/schema.Certificate"
                 },
                 "cert_str": {
-                    "description": "展示证书的详细信息",
+                    "description": "Show certificate details",
                     "type": "string"
                 },
                 "cn": {

@@ -7,28 +7,27 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/api"
-	"gitlab.oneitfarm.com/bifrost/cfssl/certdb"
-	cf_err "gitlab.oneitfarm.com/bifrost/cfssl/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	"gitlab.oneitfarm.com/bifrost/cfssl/ocsp"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/api"
+	"github.com/ztalab/cfssl/certdb"
+	cf_err "github.com/ztalab/cfssl/errors"
+	"github.com/ztalab/cfssl/helpers"
+	"github.com/ztalab/cfssl/hook"
+	"github.com/ztalab/cfssl/ocsp"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/events"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/signature"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/util"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/events"
+	"github.com/ztalab/ZACA/pkg/signature"
+	"github.com/ztalab/ZACA/util"
 )
 
 // A Handler accepts requests with a serial number parameter
 // and revokes
 type Handler struct {
 	dbAccessor certdb.Accessor
-	logger     *v2log.Logger
+	logger     *logger.Logger
 }
 
 // NewHandler returns a new http.Handler that handles a revoke request.
@@ -36,7 +35,7 @@ func NewHandler(dbAccessor certdb.Accessor) http.Handler {
 	return &api.HTTPHandler{
 		Handler: &Handler{
 			dbAccessor: dbAccessor,
-			logger:     v2log.Named("revoke"),
+			logger:     logger.Named("revoke"),
 		},
 		Methods: []string{"POST"},
 	}
@@ -76,18 +75,18 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 	certRecord := &model.Certificates{}
 	if err := core.Is.Db.Where("serial_number = ? AND authority_key_identifier = ?", req.Serial, req.AKI).First(certRecord).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			h.logger.With("sn", req.Serial, "aki", req.AKI).Warn("证书不存在")
+			h.logger.With("sn", req.Serial, "aki", req.AKI).Warn("Certificate does not exist")
 		} else {
-			h.logger.With("sn", req.Serial, "aki", req.AKI).Errorf("证书获取错误: %v", err)
+			h.logger.With("sn", req.Serial, "aki", req.AKI).Errorf("Certificate acquisition error: %v", err)
 		}
 		return cf_err.NewBadRequest(err)
 	}
 
-	// 从 vault 获取证书 PEM
+	// Get certificate PEM from vault
 	if hook.EnableVaultStorage {
 		pem, err := core.Is.VaultSecret.GetCertPEM(req.Serial)
 		if err != nil {
-			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Vault 获取错误: %v", err)
+			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Vault Get error: %v", err)
 		} else {
 			certRecord.Pem = *pem
 		}
@@ -95,25 +94,22 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 
 	cert, err := helpers.ParseCertificatePEM([]byte(certRecord.Pem))
 	if err != nil {
-		h.logger.With("sn", req.Serial, "aki", req.AKI).Errorf("证书 PEM 解析错误: %v", err)
+		h.logger.With("sn", req.Serial, "aki", req.AKI).Errorf("Certificate PEM parsing error: %v", err)
 		return cf_err.NewBadRequest(err)
 	}
 
-	// TODO 兼容标准 CFSSL 认证方式
+	// TODO Compatible with standard cfssl authentication mode
 	var valid bool
 	if req.AuthKey == "" {
 		v := signature.NewVerifier(cert.PublicKey)
 		valid, err = v.Verify([]byte(req.Nonce), req.Sign)
 		if err != nil {
-			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("验证错误: %v", err)
+			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Validation error: %v", err)
 			return cf_err.NewBadRequest(err)
 		}
 	} else {
 		if req.Profile == "" {
-			return cf_err.NewBadRequest(errors.New("profile 未指定"))
-		}
-		if req.Profile != string(caclient.RoleIDGRegistry) {
-			return cf_err.NewBadRequest(errors.New("profile 不被允许进行吊销操作"))
+			return cf_err.NewBadRequest(errors.New("profile Unspecified"))
 		}
 		if authKey, ok := core.Is.Config.Singleca.CfsslConfig.AuthKeys[req.Profile]; ok {
 			if authKey.Key == req.AuthKey {
@@ -123,7 +119,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if !valid {
-		h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("证书无法对应: %v", err)
+		h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Certificate cannot correspond: %v", err)
 		return cf_err.NewBadRequest(err)
 	}
 
@@ -133,16 +129,16 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 		return cf_err.NewBadRequestString("Invalid reason code")
 	}
 
-	// 删除 vault 对应的证书 KV
+	// Delete the certificate corresponding to vault
 	if hook.EnableVaultStorage {
 		if err := core.Is.VaultSecret.DeleteCertPEM(req.Serial); err != nil {
-			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Vault 删除错误: %v", err)
+			h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Vault Delete error: %v", err)
 		}
 	}
 
 	err = h.dbAccessor.RevokeCertificate(req.Serial, req.AKI, reasonCode)
 	if err != nil {
-		h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("数据库操作错误: %v", err)
+		h.logger.With("sn", req.Serial, "aki", req.AKI).Warnf("Database operation error: %v", err)
 		return err
 	}
 
@@ -154,7 +150,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 		AKI:      req.AKI,
 	}).Log()
 
-	h.logger.With("sn", req.Serial, "aki", req.AKI, "uri", util.GetSanURI(cert)).Info("Workload 主动吊销证书")
+	h.logger.With("sn", req.Serial, "aki", req.AKI, "uri", util.GetSanURI(cert)).Info("Workload Active revocation of certificate")
 
 	result := map[string]string{}
 	return api.SendResponse(w, result)

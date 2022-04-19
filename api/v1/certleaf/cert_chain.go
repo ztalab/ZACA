@@ -3,20 +3,20 @@ package certleaf
 import (
 	"errors"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	caLogic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/ca"
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/certleaf"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
+	"github.com/ztalab/ZACA/api/helper"
+	caLogic "github.com/ztalab/ZACA/logic/ca"
+	logic "github.com/ztalab/ZACA/logic/certleaf"
+	"github.com/ztalab/ZACA/logic/schema"
 )
 
-// CertChain 证书链
+// CertChain Certificate chain
 // @Tags certleaf
 // @Summary (p1)CertChain
-// @Description 获取证书链信息
+// @Description Get certificate chain information
 // @Produce json
-// @Param self_cert query bool false "展示 CA 自身证书链"
-// @Param sn query string false "SN+AKI 查询指定证书"
-// @Param aki query string false "SN+AKI 查询指定证书"
+// @Param self_cert query bool false "Show CA's own certificate chain"
+// @Param sn query string false "SN+AKI Query the specified certificate"
+// @Param aki query string false "SN+AKI Query the specified certificate"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=logic.LeafCert} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
@@ -37,10 +37,10 @@ type RootCertChains struct {
 	Root *caLogic.IntermediateObject `json:"root"`
 }
 
-// CertChainFromRoot Root视角下所有证书链
+// CertChainFromRoot All certificate chains from the root Perspective
 // @Tags certleaf
-// @Summary (p1)根视角证书链
-// @Description Root视角下所有证书链
+// @Summary (p1)Root view certificate chain
+// @Description All certificate chains from the root Perspective
 // @Produce json
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=RootCertChains} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
@@ -68,7 +68,7 @@ func (a *API) CertChainFromRoot(c *helper.HTTPWrapContext) (interface{}, error) 
 
 	children, err := caLogic.NewLogic().UpperCaIntermediateTopology()
 	if err != nil {
-		a.logger.Errorf("获取上层 CA 拓扑结构错误: %s", err)
+		a.logger.Errorf("Error getting upper CA topology: %s", err)
 	}
 	chain.Root.Children = children
 

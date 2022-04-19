@@ -3,9 +3,9 @@ package upperca
 import (
 	"strings"
 
-	cfssl_client "gitlab.oneitfarm.com/bifrost/cfssl/api/client"
+	cfssl_client "github.com/ztalab/cfssl/api/client"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
+	"github.com/ztalab/ZACA/ca/keymanager"
 )
 
 func ProxyRequest(f func(host string) error) error {

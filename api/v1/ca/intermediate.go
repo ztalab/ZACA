@@ -1,19 +1,19 @@
 package ca
 
 import (
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/ca"
+	"github.com/ztalab/ZACA/api/helper"
+	logic "github.com/ztalab/ZACA/logic/ca"
 )
 
 func init() {
-	// 载入类型...
+	// load type...
 	logic.DoNothing()
 }
 
-// IntermediateTopology 子CA拓扑
+// IntermediateTopology Sub-CA topology
 // @Tags CA
-// @Summary 子CA拓扑
-// @Description 子CA拓扑
+// @Summary Sub-CA topology
+// @Description Sub-CA topology
 // @Produce json
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=[]logic.IntermediateObject} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
@@ -23,10 +23,10 @@ func (a *API) IntermediateTopology(c *helper.HTTPWrapContext) (interface{}, erro
 	return a.logic.IntermediateTopology()
 }
 
-// UpperCaIntermediateTopology 上层CA拓扑
+// UpperCaIntermediateTopology Upper CA topology
 // @Tags CA
-// @Summary 上层CA拓扑
-// @Description 上层CA拓扑
+// @Summary Upper CA topology
+// @Description Upper CA topology
 // @Produce json
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=[]logic.IntermediateObject} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse

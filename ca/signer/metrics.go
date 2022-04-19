@@ -5,9 +5,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/logic/schema"
+	"github.com/ztalab/ZACA/pkg/influxdb"
 )
 
 var overallSignCounter uint64

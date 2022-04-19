@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/url"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core/config"
+	"github.com/ztalab/ZACA/core/config"
 )
 
 const (
@@ -35,7 +35,7 @@ func GetLocalIpLabel() string {
 var internetIP = getInternetIP()
 
 func getInternetIP() (IP string) {
-	// 查找本机IP
+	// Find native IP
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return ""
@@ -44,7 +44,7 @@ func getInternetIP() (IP string) {
 		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ip4 := ipnet.IP.To4(); ip4 != nil {
 				if ip4[0] == 10 {
-					// 赋值新的IP
+					// Assign new IP
 					IP = ip4.String()
 				}
 			}

@@ -3,17 +3,16 @@ package initer
 import (
 	"log"
 
-	"gitlab.oneitfarm.com/bifrost/cilog"
-	"gitlab.oneitfarm.com/bifrost/cilog/redis_hook"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/logger/redis_hook"
 	"go.uber.org/zap/zapcore"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
+	"github.com/ztalab/ZACA/core"
 )
 
 func initLogger(config *core.Config) {
 	conf := &logger.Conf{
-		AppInfo: &cilog.ConfigAppData{
+		AppInfo: &logger.ConfigAppData{
 			AppVersion: config.Version,
 			Language:   "zh-cn",
 		},

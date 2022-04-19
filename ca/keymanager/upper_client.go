@@ -5,13 +5,13 @@ import (
 	"net/url"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/client"
-	"gitlab.oneitfarm.com/bifrost/cfssl/auth"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/api/client"
+	"github.com/ztalab/cfssl/auth"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
+	"github.com/ztalab/ZACA/core"
 )
 
 type UpperClients interface {
@@ -27,7 +27,7 @@ type upperClients struct {
 
 func (uc *upperClients) DoWithRetry(f func(*client.AuthRemote) error) error {
 	if len(uc.clients) == 0 {
-		return errors.New("没有可用客户端")
+		return errors.New("No clients available")
 	}
 	var errGroup error
 	for _, upperClient := range uc.clients {
@@ -36,7 +36,7 @@ func (uc *upperClients) DoWithRetry(f func(*client.AuthRemote) error) error {
 			// success
 			return nil
 		}
-		uc.logger.With("upper", upperClient.Hosts()).Warnf("upper ca 执行错误: %s", err)
+		uc.logger.With("upper", upperClient.Hosts()).Warnf("upper ca Execution error: %s", err)
 		multierr.AppendInto(&errGroup, err)
 	}
 	return errGroup
@@ -48,26 +48,26 @@ func (uc *upperClients) AllClients() map[string]*client.AuthRemote {
 
 func NewUpperClients(adds []string) (UpperClients, error) {
 	if len(adds) == 0 {
-		return nil, errors.New("Upper CA 地址配置错误")
+		return nil, errors.New("Upper CA Address configuration error")
 	}
 	ap, err := auth.New(core.Is.Config.Singleca.CfsslConfig.AuthKeys["intermediate"].Key, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "Auth key 配置错误")
+		return nil, errors.Wrap(err, "Auth key Configuration error")
 	}
 	clients := make(map[string]*client.AuthRemote)
 	for _, addr := range adds {
 		upperAddr, err := url.Parse(addr)
 		if err != nil {
-			return nil, errors.Wrap(err, "Upper CA 地址解析错误")
+			return nil, errors.Wrap(err, "Upper CA Address resolution error")
 		}
 		upperClient := client.NewAuthServer(addr, &tls.Config{
 			InsecureSkipVerify: true, //nolint:gosec
 		}, ap)
 		clients[upperAddr.Host] = upperClient
 	}
-	v2log.Infof("Upper CA Client 数量: %v", len(clients))
+	logger.Infof("Upper CA Client Quantity: %v", len(clients))
 	return &upperClients{
 		clients: clients,
-		logger:  v2log.Named("upperca").SugaredLogger,
+		logger:  logger.Named("upperca").SugaredLogger,
 	}, nil
 }

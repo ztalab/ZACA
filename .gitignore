@@ -19,3 +19,4 @@
 # IDE configs
 .idea
 .vscode
+./bin

@@ -1,11 +1,11 @@
 package vaultsecret
 
 import (
+	"github.com/ztalab/ZACA/pkg/logger"
 	"strings"
 
 	vaultAPI "github.com/hashicorp/vault/api"
 	"github.com/spf13/cast"
-	v2 "gitlab.oneitfarm.com/bifrost/cilog/v2"
 )
 
 const (
@@ -73,7 +73,7 @@ func (v *VaultSecret) GetCertPEMKey(sn string) (*string, *string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	v2.S().With("data", data.Data).Debugf("Vault 获取 CERT KEY")
+	logger.S().With("data", data.Data).Debugf("Vault Obtain CERT KEY")
 	var pem string
 	var key string
 	if data != nil {

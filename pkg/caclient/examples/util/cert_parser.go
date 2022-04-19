@@ -4,22 +4,22 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/helpers"
 )
 
 func ExtractCertFromExchanger(ex *caclient.Exchanger) {
-	logger := v2log.Named("keypair-exporter")
+	logger := logger.Named("keypair-exporter")
 	tlsCert, err := ex.Transport.GetCertificate()
 	if err != nil {
-		logger.Errorf("TLS 证书获取失败: %v", err)
+		logger.Errorf("TLS Certificate acquisition failed: %v", err)
 		return
 	}
 	cert := helpers.EncodeCertificatePEM(tlsCert.Leaf)
 	keyBytes, err := x509.MarshalPKCS8PrivateKey(tlsCert.PrivateKey)
 	if err != nil {
-		logger.Errorf("TLS 证书 Private Key 获取失败: %v", err)
+		logger.Errorf("TLS certificate private key acquisition failed: %v", err)
 		return
 	}
 
@@ -31,19 +31,19 @@ func ExtractCertFromExchanger(ex *caclient.Exchanger) {
 	trustCerts := ex.Transport.TrustStore.Certificates()
 	caCerts := make([][]byte, 0, len(trustCerts))
 
-	fmt.Println("--- CA 证书 Stared ---")
+	fmt.Println("--- CA Certificate Stared ---")
 	for _, caCert := range trustCerts {
 		caCertBytes := helpers.EncodeCertificatePEM(caCert)
 		caCerts = append(caCerts, caCertBytes)
 		fmt.Println("---\n", string(caCertBytes), "\n---")
 	}
-	fmt.Println("--- CA 证书 End ---")
+	fmt.Println("--- CA Certificate End ---")
 	fmt.Println()
 	fmt.Println()
 	fmt.Println()
 	fmt.Println()
 	fmt.Println()
 
-	fmt.Println("--- 私钥 Stared ---\n", string(key), "\n--- 私钥 End ---")
-	fmt.Println("--- 证书 Stared ---\n", string(cert), "\n--- 证书 End ---")
+	fmt.Println("--- Private key Stared ---\n", string(key), "\n--- Private key End ---")
+	fmt.Println("--- Certificate Stared ---\n", string(cert), "\n--- Certificate End ---")
 }

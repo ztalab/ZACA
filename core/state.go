@@ -4,14 +4,11 @@ import (
 	"context"
 
 	vaultAPI "github.com/hashicorp/vault/api"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
-	"gitlab.oneitfarm.com/bifrost/go-toolbox/rediscluster"
+	"github.com/ztalab/ZACA/core/config"
+	"github.com/ztalab/ZACA/pkg/influxdb"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/vaultsecret"
 	"gorm.io/gorm"
-	"k8s.io/client-go/kubernetes"
-
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core/config"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/vaultsecret"
 )
 
 // Config ...
@@ -34,14 +31,12 @@ type Logger struct {
 
 // I ...
 type I struct {
-	Ctx                context.Context
-	Config             *Config
-	RedisClusterClient *rediscluster.Cluster
-	Logger             *Logger
-	Db                 *gorm.DB
-	KubeClient         *kubernetes.Clientset
-	Elector            Elector
-	Metrics            *influxdb.Metrics
-	VaultClient        *vaultAPI.Client
-	VaultSecret        *vaultsecret.VaultSecret
+	Ctx         context.Context
+	Config      *Config
+	Logger      *Logger
+	Db          *gorm.DB
+	Elector     Elector
+	Metrics     *influxdb.Metrics
+	VaultClient *vaultAPI.Client
+	VaultSecret *vaultsecret.VaultSecret
 }

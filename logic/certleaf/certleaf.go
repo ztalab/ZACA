@@ -5,12 +5,12 @@ import (
 	"encoding/hex"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
+	"github.com/ztalab/cfssl/helpers"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/schema"
 )
 
 type LeafCert struct {
@@ -19,17 +19,16 @@ type LeafCert struct {
 }
 
 type CertChainParams struct {
-	SelfCert bool   `form:"self_cert"` // 展示自己的证书
+	SelfCert bool   `form:"self_cert"` // Show your certificate
 	SN       string `form:"sn"`
 	AKI      string `form:"aki"`
 }
 
-// CertChain 证书链
+// CertChain
 func (l *Logic) CertChain(params *CertChainParams) (*LeafCert, error) {
 	var cert *x509.Certificate
 	var err error
 	if params.SelfCert {
-		// Ca 自身证书
 		_, cert, err = keymanager.GetKeeper().GetCachedSelfKeyPair()
 		if err != nil {
 			return nil, err
@@ -41,11 +40,11 @@ func (l *Logic) CertChain(params *CertChainParams) (*LeafCert, error) {
 			SerialNumber:           params.SN,
 			AuthorityKeyIdentifier: params.AKI,
 		}).First(&row).Error; err != nil {
-			return nil, errors.Wrap(err, "数据库查询错误")
+			return nil, errors.Wrap(err, "Database query error")
 		}
 		parsedCert, err := helpers.ParseCertificatePEM([]byte(row.Pem))
 		if err != nil {
-			l.logger.Errorf("证书解析错误: %s", err)
+			l.logger.Errorf("Certificate parsing error: %s", err)
 			return nil, err
 		}
 		cert = parsedCert

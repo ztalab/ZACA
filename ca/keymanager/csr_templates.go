@@ -1,8 +1,8 @@
 package keymanager
 
 import (
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/cfssl/csr"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/cfssl/csr"
 )
 
 // getRootCSRTemplate Root CA
@@ -21,12 +21,12 @@ var getRootCSRTemplate = func() *csr.CertificateRequest {
 	}
 }
 
-// getIntermediateCSRTemplate 中间 CA 模板
+// getIntermediateCSRTemplate
 var getIntermediateCSRTemplate = func() *csr.CertificateRequest {
 	return &csr.CertificateRequest{
 		Names: []csr.Name{
 			{
-				O:  core.Is.Config.Keymanager.CsrTemplates.IntermediateCa.O, // 从配置文件获取
+				O:  core.Is.Config.Keymanager.CsrTemplates.IntermediateCa.O,
 				OU: core.Is.Config.Keymanager.CsrTemplates.IntermediateCa.Ou,
 			},
 		},

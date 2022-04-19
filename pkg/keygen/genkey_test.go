@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/attrmgr"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/pkg/attrmgr"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 )
 
 var (

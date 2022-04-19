@@ -7,19 +7,19 @@ import (
 	"math/big"
 	"net/http"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/api"
-	"gitlab.oneitfarm.com/bifrost/cfssl/auth"
-	"gitlab.oneitfarm.com/bifrost/cfssl/bundler"
-	"gitlab.oneitfarm.com/bifrost/cfssl/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
-	"gitlab.oneitfarm.com/bifrost/cfssl/log"
-	"gitlab.oneitfarm.com/bifrost/cfssl/signer"
+	"github.com/ztalab/cfssl/api"
+	"github.com/ztalab/cfssl/auth"
+	"github.com/ztalab/cfssl/bundler"
+	"github.com/ztalab/cfssl/errors"
+	"github.com/ztalab/cfssl/helpers"
+	"github.com/ztalab/cfssl/hook"
+	"github.com/ztalab/cfssl/log"
+	"github.com/ztalab/cfssl/signer"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/events"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/logic/events"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 )
 
 // NoBundlerMessage is used to alert the user that the server does not have a bundler initialized.
@@ -121,7 +121,7 @@ func jsonReqToTrue(js jsonSignRequest) signer.SignRequest {
 // in the "hostname" parameter. The certificate should be PEM-encoded. If
 // provided, subject information from the "subject" parameter will be used
 // in place of the subject information from the CSR.
-// 该 Handler 不会被调用到, 我们通常使用下述的 AuthHandler
+// The Handler will not be called, we usually use the following AuthHandler
 func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 	log.Info("signature request received")
 
@@ -187,7 +187,7 @@ type AuthHandler struct {
 
 // NewAuthHandlerFromSigner creates a new AuthHandler from the signer
 // that is passed in.
-// 签发证书的 API Handler
+// issued the certificate API Handler
 func NewAuthHandlerFromSigner(signer signer.Signer) (http.Handler, error) {
 	policy := signer.Policy()
 	if policy == nil {
@@ -228,7 +228,7 @@ func (h *AuthHandler) SetBundler(caBundleFile, intBundleFile string) (err error)
 }
 
 // Handle receives the incoming request, validates it, and processes it.
-// 处理认证的签名证书请求
+// Process signed certificate requests for authentication
 func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 	log.Info("signature request received")
 
@@ -288,8 +288,8 @@ func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 		return errors.NewBadRequestString("missing parameter 'certificate_request'")
 	}
 
-	// 审计是否能够申请证书
-	// 查询 DB 是否有标记 UniqueID 禁止申请
+	// Can audit apply for certificate
+	// Query whether the DB is marked with uniqueID to prohibit application
 	for _, signHost := range signReq.Hosts {
 		id, err := spiffe.ParseIDGIdentity(signHost)
 		if err != nil {
@@ -309,7 +309,7 @@ func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// CFSSL 签发逻辑中增加, 若证书储存模式为 Vault, 增加数据库标志位, 不实际储存证书 PEM
+	// CFSSL In the issuing logic, if the certificate storage mode is vault, the database flag bit is added, and the certificate PEM is not actually stored
 	cert, err := h.signer.Sign(signReq)
 	if err != nil {
 		log.Errorf("signature failed: %v", err)
@@ -318,7 +318,7 @@ func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 
 	x509Cert, _ := helpers.ParseCertificatePEM(cert)
 
-	// 签发证书后增加储存到 Vault
+	// After the certificate is issued, it is added and stored in the vault
 	if hook.EnableVaultStorage {
 		if err := core.Is.VaultSecret.StoreCertPEM(x509Cert.SerialNumber.String(), string(cert)); err != nil {
 			core.Is.Logger.Errorf("vault store err: %s", err)
@@ -326,7 +326,7 @@ func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// Metrics 时序记录
+	// Metrics Timing record
 	AddMetricsPoint(x509Cert)
 
 	if x509Cert != nil {

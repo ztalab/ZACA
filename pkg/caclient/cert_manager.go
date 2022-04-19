@@ -7,20 +7,20 @@ import (
 	"encoding/hex"
 	"net/http"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
+	"github.com/ztalab/cfssl/hook"
 
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	"gitlab.oneitfarm.com/bifrost/cfssl/info"
+	"github.com/ztalab/cfssl/helpers"
+	"github.com/ztalab/cfssl/info"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/client"
-	"gitlab.oneitfarm.com/bifrost/cfssl/auth"
-	"gitlab.oneitfarm.com/bifrost/cfssl/signer"
+	"github.com/ztalab/cfssl/api/client"
+	"github.com/ztalab/cfssl/auth"
+	"github.com/ztalab/cfssl/signer"
 	"go.uber.org/zap"
 )
 
-// CertManager 证书管理器
+// CertManager Certificate manager
 type CertManager struct {
 	logger      *zap.SugaredLogger
 	apiClient   *client.AuthRemote
@@ -28,15 +28,15 @@ type CertManager struct {
 	caAddr      string
 	authKey     string
 	ocspFetcher OcspClient
-	// TODO 证书储存
+	// TODO Certificate storage
 	caCertTmp *x509.Certificate
 }
 
-// NewCertManager 创建证书管理 Instance
+// NewCertManager Create certificate management Instance
 func (cai *CAInstance) NewCertManager() (*CertManager, error) {
 	ap, err := auth.New(cai.Conf.CFIdentity.Profiles["cfssl"]["auth-key"], nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "Auth key 配置错误")
+		return nil, errors.Wrap(err, "Auth key Configuration error")
 	}
 	caAddr := cai.CaAddr
 	ocspAddr := cai.OcspAddr
@@ -95,11 +95,11 @@ func (cm *CertManager) SignPEM(csrPEM []byte, uniqueID string) ([]byte, error) {
 		return nil, err
 	}
 
-	cm.logger.With("req", signReq).Debug("请求签发证书")
+	cm.logger.With("req", signReq).Debug("Request for certificate")
 
 	certPEM, err := cm.apiClient.Sign(signReqBytes)
 	if err != nil {
-		cm.logger.Errorf("请求签发证书失败: %s", err)
+		cm.logger.Errorf("Request to issue certificate failed: %s", err)
 		return nil, err
 	}
 
@@ -108,10 +108,6 @@ func (cm *CertManager) SignPEM(csrPEM []byte, uniqueID string) ([]byte, error) {
 
 // RevokeIDGRegistryCert ...
 func (cm *CertManager) RevokeIDGRegistryCert(certPEM []byte) error {
-	if cm.profile != string(RoleIDGRegistry) {
-		return errors.New("Profile not valid")
-	}
-
 	cert, err := helpers.ParseCertificatePEM(certPEM)
 	if err != nil {
 		return err
@@ -120,7 +116,7 @@ func (cm *CertManager) RevokeIDGRegistryCert(certPEM []byte) error {
 	req := &RevokeRequest{
 		Serial:  cert.SerialNumber.String(),
 		AKI:     hex.EncodeToString(cert.AuthorityKeyId),
-		Reason:  "", // 默认为 0
+		Reason:  "", // Default to 0
 		AuthKey: cm.authKey,
 		Profile: cm.profile,
 	}
@@ -131,13 +127,13 @@ func (cm *CertManager) RevokeIDGRegistryCert(certPEM []byte) error {
 
 	resp, err := httpClient.Post(cm.caAddr+revokePath, "application/json", buf)
 	if err != nil {
-		return errors.Wrap(err, "请求错误")
+		return errors.Wrap(err, "Request error")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		cm.logger.With("status", resp.StatusCode).Errorf("请求错误")
-		return errors.New("请求错误")
+		cm.logger.With("status", resp.StatusCode).Errorf("Request error")
+		return errors.New("Request error")
 	}
 
 	return nil
@@ -170,7 +166,7 @@ func (cm *CertManager) VerifyCertDefaultIssuer(leafPEM []byte) error {
 		return err
 	}
 	if !ok {
-		return errors.New("证书被吊销")
+		return errors.New("Certificate revoked")
 	}
 	return nil
 }

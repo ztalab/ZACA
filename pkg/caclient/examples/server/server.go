@@ -4,21 +4,21 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient/examples/util"
+	"github.com/ztalab/ZACA/pkg/caclient/examples/util"
 	"net"
 
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keygen"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/keygen"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
-	caAddr   = flag.String("ca", "https://192.168.2.80:8381", "CA Server")
-	ocspAddr = flag.String("ocsp", "http://192.168.2.80:8382", "Ocsp Server")
+	caAddr   = flag.String("ca", "https://127.0.0.1:8081", "CA Server")
+	ocspAddr = flag.String("ocsp", "http://127.0.0.1:8382", "Ocsp Server")
 	addr     = flag.String("addr", ":6066", "")
 	authKey  = "0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"
 )
@@ -32,21 +32,21 @@ func init() {
 
 func main() {
 	flag.Parse()
-	err := NewSidecarMTLSServer()
+	err := NewMTLSServer()
 	if err != nil {
 		logger.Fatal(err)
 	}
 	select {}
 }
 
-// NewSidecarMTLSServer mTLS Server 使用示例
-func NewSidecarMTLSServer() error {
+// NewMTLSServer mTLS Server Use example
+func NewMTLSServer() error {
 	l, _ := logger.NewZapLogger(&logger.Conf{
 		// Level: 2,
 		Level: 0,
 	})
 	c := caclient.NewCAI(
-		caclient.WithCAServer(caclient.RoleSidecar, *caAddr),
+		caclient.WithCAServer(caclient.RoleDefault, *caAddr),
 		caclient.WithOcspAddr(*ocspAddr),
 		caclient.WithAuthKey(authKey),
 		caclient.WithLogger(l),
@@ -61,10 +61,10 @@ func NewSidecarMTLSServer() error {
 		UniqueID:  "server1",
 	})
 	if err != nil {
-		return errors.Wrap(err, "Exchanger 初始化失败")
+		return errors.Wrap(err, "Exchanger initialization failed")
 	}
 
-	// 启动证书轮换
+	// Start certificate rotation
 	go ex.RotateController().Run()
 
 	cfger, err := ex.ServerTLSConfig()

@@ -1,17 +1,17 @@
-// Package workload 证书生命周期管理
+// Package workload Certificate Lifecycle Management
 package workload
 
 import (
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/workload"
+	"github.com/ztalab/ZACA/api/helper"
+	logic "github.com/ztalab/ZACA/logic/workload"
 )
 
-// RevokeCerts 吊销证书
+// RevokeCerts revoked certificate
 // @Tags Workload
 // @Summary (p3)Revoke
-// @Description 吊销证书
+// @Description revoked certificate
 // @Produce json
-// @Param body body logic.RevokeCertsParams true "sn+aki / unique_id 二选一"
+// @Param body body logic.RevokeCertsParams true "sn+aki / unique_id pick one of two"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
@@ -28,12 +28,12 @@ func (a *API) RevokeCerts(c *helper.HTTPWrapContext) (interface{}, error) {
 	return "revoked", nil
 }
 
-// RecoverCerts 恢复证书
+// RecoverCerts Restore certificate
 // @Tags Workload
 // @Summary (p3)Recover
-// @Description 恢复证书
+// @Description Restore certificate
 // @Produce json
-// @Param body body logic.RecoverCertsParams true "sn+aki / unique_id 二选一"
+// @Param body body logic.RecoverCertsParams true "sn+aki / unique_id either-or"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
@@ -50,10 +50,10 @@ func (a *API) RecoverCerts(c *helper.HTTPWrapContext) (interface{}, error) {
 	return "recovered", nil
 }
 
-// ForbidNewCerts 禁止某个 UniqueID 申请证书
+// ForbidNewCerts Prohibit a uniqueID from requesting a certificate
 // @Tags Workload
-// @Summary 禁止申请证书
-// @Description 禁止某个 UniqueID 申请证书
+// @Summary Application for certificate is prohibited
+// @Description Prohibit a uniqueID from requesting a certificate
 // @Produce json
 // @Param body body logic.ForbidNewCertsParams true " "
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
@@ -72,10 +72,10 @@ func (a *API) ForbidNewCerts(c *helper.HTTPWrapContext) (interface{}, error) {
 	return "success", nil
 }
 
-// RecoverForbidNewCerts 恢复允许某个 UniqueID 申请证书
+// RecoverForbidNewCerts Recovery allows a uniqueID to request a certificate
 // @Tags Workload
-// @Summary 恢复申请证书
-// @Description 恢复允许某个 UniqueID 申请证书
+// @Summary Resume application certificate
+// @Description Recovery allows a uniqueID to request a certificate
 // @Produce json
 // @Param body body logic.ForbidNewCertsParams true " "
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
@@ -98,10 +98,10 @@ type ForbidUnitParams struct {
 	UniqueID string `json:"unique_id" binding:"required"`
 }
 
-// ForbidUnit 吊销并禁止服务证书
+// ForbidUnit Revoke and prohibit service certificates
 // @Tags Workload
-// @Summary (p1)吊销并禁止服务证书
-// @Description 吊销并禁止服务证书
+// @Summary (p1)Revoke and prohibit service certificates
+// @Description Revoke and prohibit service certificates
 // @Produce json
 // @Param json body ForbidUnitParams true " "
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
@@ -116,26 +116,26 @@ func (a *API) ForbidUnit(c *helper.HTTPWrapContext) (interface{}, error) {
 		UniqueIds: []string{req.UniqueID},
 	})
 	if err != nil {
-		a.logger.With("req", req).Errorf("禁止申请证书失败: %s", err)
+		a.logger.With("req", req).Errorf("Failed to prohibit certificate application: %s", err)
 		return nil, err
 	}
 
-	// 2021.04.15 (功能性调整) 证书启用/禁用影响证书通信 OCSP 认证、Sidecar mTLS 使用，不会吊销证书
+	// 2021.04.15 (functional adjustment) certificate enabling and disabling will affect certificate communication, OCSP authentication and MTLs use, and the certificate will not be revoked
 	// err = a.logic.RevokeCerts(&logic.RevokeCertsParams{
 	//    UniqueId: req.UniqueID,
 	// })
 	// if err != nil {
-	//    a.logger.With("req", req).Errorf("吊销服务证书失败: %s", err)
+	//    a.logger.With("req", req).Errorf("Revocation of service certificate failed: %s", err)
 	//    return nil, err
 	// }
 
 	return "success", nil
 }
 
-// RecoverUnit 恢复并允许服务证书
+// RecoverUnit Restore and allow service certificates
 // @Tags Workload
-// @Summary (p1)恢复并允许服务证书
-// @Description 恢复并允许服务证书
+// @Summary (p1)Restore and allow service certificates
+// @Description Restore and allow service certificates
 // @Produce json
 // @Param json body ForbidUnitParams true " "
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody " "
@@ -150,7 +150,7 @@ func (a *API) RecoverUnit(c *helper.HTTPWrapContext) (interface{}, error) {
 		UniqueIds: []string{req.UniqueID},
 	})
 	if err != nil {
-		a.logger.With("req", req).Errorf("恢复申请证书失败: %s", err)
+		a.logger.With("req", req).Errorf("Failed to restore the requested certificate: %s", err)
 		return nil, err
 	}
 
@@ -158,7 +158,7 @@ func (a *API) RecoverUnit(c *helper.HTTPWrapContext) (interface{}, error) {
 	//    UniqueId: req.UniqueID,
 	// })
 	// if err != nil {
-	//    a.logger.With("req", req).Errorf("恢复服务证书失败: %s", err)
+	//    a.logger.With("req", req).Errorf("Failed to restore service certificate: %s", err)
 	//    return nil, err
 	// }
 

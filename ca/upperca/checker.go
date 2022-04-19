@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"gitlab.oneitfarm.com/bifrost/cfssl/api/client"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/api/client"
 	"go.uber.org/zap"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/logic/schema"
+	"github.com/ztalab/ZACA/pkg/influxdb"
 )
 
 const CfsslHealthApi = "/api/v1/cfssl/health"
@@ -60,7 +60,7 @@ func (hc *checker) checkUpper(upperClient *client.AuthRemote) {
 	caHost := schema.GetHostFromUrl(caUrl)
 
 	resp, err := httpClient.R().Get(caUrl + CfsslHealthApi)
-	// 统计信任证书梳
+	// Statistical trust certificate comb
 	var statusCode int
 	if err != nil {
 		statusCode = 599
@@ -69,7 +69,7 @@ func (hc *checker) checkUpper(upperClient *client.AuthRemote) {
 	}
 
 	if err != nil || resp.StatusCode() != http.StatusOK {
-		hc.logger.Warnf("Upper CA: %s 连接错误: %s", caHost, err)
+		hc.logger.Warnf("Upper CA: %s Connection error: %s", caHost, err)
 	}
 
 	hc.influx.AddPoint(&influxdb.MetricsData{
@@ -86,11 +86,11 @@ func (hc *checker) checkUpper(upperClient *client.AuthRemote) {
 	})
 }
 
-// NewChecker 只在下级 CA 执行
+// NewChecker Execute only in subordinate CAS
 func NewChecker() Checker {
 	return &checker{
 		UpperClients: keymanager.GetKeeper().RootClient,
-		logger:       v2log.Named("upper").SugaredLogger,
+		logger:       logger.Named("upper").SugaredLogger,
 		influx:       core.Is.Metrics,
 	}
 }

@@ -1,7 +1,7 @@
 package workload
 
 import (
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
 )
 
 type UnitsForbidQueryParams struct {
@@ -17,20 +17,20 @@ type UnitsForbidQueryResult struct {
 	Status map[string]UnitForbidQueryItem `json:"status"`
 }
 
-// UnitsForbidQuery 查询 unique_id 是否被禁止申请证书
+// UnitsForbidQuery Query unique_id Is it forbidden to apply for certificate
 func (l *Logic) UnitsForbidQuery(params *UnitsForbidQueryParams) (*UnitsForbidQueryResult, error) {
 	db := l.db.Where("unique_id IN ?", params.UniqueIds).
 		Where("deleted_at IS NULL")
 	list, _, err := dao.GetAllForbid(db, 1, 1000, "id desc")
 	if err != nil {
-		l.logger.Errorf("数据库查询错误: %s", err)
+		l.logger.Errorf("Database query error: %s", err)
 		return nil, err
 	}
 	result := UnitsForbidQueryResult{
 		Status: make(map[string]UnitForbidQueryItem),
 	}
 
-	l.logger.Debugf("查询结果: %v", list)
+	l.logger.Debugf("Query results: %v", list)
 
 	for _, uid := range params.UniqueIds {
 		result.Status[uid] = UnitForbidQueryItem{

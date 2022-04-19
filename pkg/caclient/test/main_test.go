@@ -1,7 +1,7 @@
 package test
 
 import (
-	"gitlab.oneitfarm.com/bifrost/cfssl/hook"
+	"github.com/ztalab/cfssl/hook"
 	"os"
 	"testing"
 )

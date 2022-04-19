@@ -7,14 +7,14 @@ import (
 	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
+	"github.com/ztalab/cfssl/helpers"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/upperca"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
+	"github.com/ztalab/ZACA/ca/upperca"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/logic/schema"
+	"github.com/ztalab/ZACA/pkg/caclient"
 )
 
 const (
@@ -36,7 +36,7 @@ type IntermediateObject struct {
 	Current  bool                  `json:"current"`
 }
 
-// IntermediateTopology 获取自身签发的子集群证书
+// IntermediateTopology Obtain the sub cluster certificate issued by itself
 func (l *Logic) IntermediateTopology() ([]*IntermediateObject, error) {
 	db := l.db.Session(&gorm.Session{})
 	db = db.Where("ca_label = ?", caclient.RoleIntermediate)
@@ -53,18 +53,18 @@ func (l *Logic) IntermediateTopology() ([]*IntermediateObject, error) {
 	)
 	list, _, err := dao.GetAllCertificates(db, 1, 100, "issued_at desc")
 	if err != nil {
-		return nil, errors.Wrap(err, "数据库查询错误")
+		return nil, errors.Wrap(err, "Database query error")
 	}
-	l.logger.Debugf("查询结果数量: %v", len(list))
+	l.logger.Debugf("Number of query results: %v", len(list))
 	intermediateMap := make(map[string]*IntermediateObject, 0)
 	for _, row := range list {
 		rawCert, err := helpers.ParseCertificatePEM([]byte(row.Pem))
 		if err != nil {
-			l.logger.With("row", row).Errorf("CA 证书解析错误: %s", err)
+			l.logger.With("row", row).Errorf("CA Certificate parsing error: %s", err)
 			continue
 		}
 		if len(rawCert.Subject.OrganizationalUnit) == 0 || len(rawCert.Subject.Organization) == 0 {
-			l.logger.With("row", row).Warn("CA 证书缺少 O/OU 字段")
+			l.logger.With("row", row).Warn("CA Certificate missing O/OU Field")
 			continue
 		}
 		ou := rawCert.Subject.OrganizationalUnit[0]
@@ -84,7 +84,7 @@ func (l *Logic) IntermediateTopology() ([]*IntermediateObject, error) {
 	return result, nil
 }
 
-// UpperCaIntermediateTopology 获取上级 CA 的
+// UpperCaIntermediateTopology Get parent CA's
 func (l *Logic) UpperCaIntermediateTopology() ([]*IntermediateObject, error) {
 	if core.Is.Config.Keymanager.SelfSign {
 		return l.IntermediateTopology()
@@ -94,14 +94,14 @@ func (l *Logic) UpperCaIntermediateTopology() ([]*IntermediateObject, error) {
 	err := upperca.ProxyRequest(func(host string) error {
 		res, err := httpClient.R().Get(host + UpperCaApiIntermediateTopology)
 		if err != nil {
-			l.logger.With("upperca", host).Errorf("UpperCA 请求错误: %s", err)
+			l.logger.With("upperca", host).Errorf("UpperCA Request error: %s", err)
 			return err
 		}
 		resp = res
 		return nil
 	})
 	if err != nil {
-		l.logger.Errorf("UpperCA 子CA拓扑获取失败: %s", err)
+		l.logger.Errorf("UpperCA Sub CA topology acquisition failed: %s", err)
 		return nil, err
 	}
 
@@ -110,8 +110,8 @@ func (l *Logic) UpperCaIntermediateTopology() ([]*IntermediateObject, error) {
 		Data []*IntermediateObject `json:"data"`
 	}
 	if err := jsoniter.Unmarshal(body, &response); err != nil {
-		l.logger.With("body", string(body)).Errorf("json 解析错误: %s", err)
-		return nil, errors.Wrap(err, "json 解析错误")
+		l.logger.With("body", string(body)).Errorf("json Parsing error: %s", err)
+		return nil, errors.Wrap(err, "json Parsing error")
 	}
 
 	return response.Data, nil

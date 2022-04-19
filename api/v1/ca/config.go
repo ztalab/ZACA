@@ -3,21 +3,21 @@ package ca
 import (
 	"strings"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/ca"
+	"github.com/ztalab/ZACA/api/helper"
+	logic "github.com/ztalab/ZACA/logic/ca"
 )
 
 func init() {
-	// 载入类型...
+	// Load type...
 	logic.DoNothing()
 }
 
-// RoleProfiles 环境隔离类型
+// RoleProfiles Environmental isolation type
 // @Tags CA
-// @Summary (p1)环境隔离类型
-// @Description 环境隔离类型
+// @Summary (p1)Environmental isolation type
+// @Description Environmental isolation type
 // @Produce json
-// @Param short query bool false "只返回类型列表, 供搜索条件"
+// @Param short query bool false "Only a list of types is returned for search criteria"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=logic.RoleProfile} " "
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=[]string} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse

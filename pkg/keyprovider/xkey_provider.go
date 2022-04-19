@@ -13,12 +13,12 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/csr"
-	"gitlab.oneitfarm.com/bifrost/cfssl/helpers"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/csr"
+	"github.com/ztalab/cfssl/helpers"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keygen"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/pkg/keygen"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 )
 
 const (
@@ -46,7 +46,6 @@ type xInternal struct {
 	certPEM []byte
 }
 
-// TODO 加入 file watcher 更新 root 证书
 // XKeyProvider provides unencrypted PEM-encoded certificates and
 // private keys. If paths are provided, the key and certificate will
 // be stored on disk.
@@ -55,7 +54,7 @@ type XKeyProvider struct {
 	internal            xInternal
 	*spiffe.IDGIdentity `json:"idg_identity"`
 	DiskStore           bool
-	logger              *v2log.Logger
+	logger              *logger.Logger
 	CSRConf             keygen.CSRConf
 }
 
@@ -75,7 +74,7 @@ func NewXKeyProvider(id *spiffe.IDGIdentity) (*XKeyProvider, error) {
 			mu: sync.RWMutex{},
 		},
 		IDGIdentity: id,
-		logger:      v2log.Named("keyprovider"),
+		logger:      logger.Named("keyprovider"),
 	}
 
 	err := sp.Check()
@@ -155,7 +154,7 @@ func (sp *XKeyProvider) Generate(algo string, size int) (err error) {
 	sp.internal.priv = priv.(crypto.Signer)
 	sp.internal.keyPEM = key
 
-	sp.logger.Debugf("创建 Private Key: %v", algo)
+	sp.logger.Debugf("Create Private Key: %v", algo)
 
 	return nil
 }

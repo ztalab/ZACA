@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.oneitfarm.com/bifrost/go-toolbox/memorycacher"
+	"github.com/ztalab/ZACA/pkg/memorycacher"
 )
 
 var MapCache *memorycacher.Cache

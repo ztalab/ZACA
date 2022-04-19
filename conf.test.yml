@@ -13,10 +13,10 @@ redis:
     - 192.168.2.80:9002
     - 192.168.2.80:9003
 
-# 级联 CA 配置项
+# Cascading CA configuration items
 keymanager:
   upper-ca: [] # https://@server.ca
-  self-sign: false # 开启表示 ROOT CA
+  self-sign: false # Open representation ROOT CA
   csr-templates:
     root-ca:
       o: CI123 ROOT AUTHORITY
@@ -53,17 +53,17 @@ influxdb:
   enabled: true
   address: "192.168.2.80" #192.168.2.80:8086
   port: 8086
-  udp_address: "" #influxdb msp数据库的udp地址，ip:port
-  database: "msp" # 数据库名称
-  precision: "ms" #精度 n, u, ms, s, m or h
+  udp_address: "" #influxdb UDP address of the database，ip:port
+  database: "msp" # Database name
+  precision: "ms" #Accuracy n, u, ms, s, m or h
   username: "influx-msp"
   password: "sunyangpassword"
   read-username: "MSP_CUSTOM_INFLUXDB_USERNAME"
   read-password: "MSP_CUSTOM_INFLUXDB_PASSWORD"
   max-idle-conns: 30
   max-idle-conns-per-host: 30
-  flush-size: 20 #批量发送的点的个数
-  flush-time: 10 #定时批量发送点的时间，单位：s
+  flush-size: 20 #Number of points sent in batch
+  flush-time: 10 #Time of scheduled batch sending point，Company：s
 
 vault:
   enabled: false
@@ -79,11 +79,6 @@ swagger-enabled: true
 
 debug: true
 
-# 监控指标
-metrics:
-  cpu-limit: 90 # cpu阈值
-  mem-limit: 80 # 内存阈值
-
-# ocsp配置
+# OCSP configuration
 ocsp:
-  cache-time: 60 # 缓存时间
+  cache-time: 60 # Cache time

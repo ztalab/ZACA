@@ -1,16 +1,16 @@
-// Package workload 证书生命周期管理
+// Package workload Certificate lifecycle management
 package workload
 
 import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/ocsp"
+	"github.com/ztalab/cfssl/ocsp"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/events"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/events"
 )
 
 type RevokeCertsParams struct {
@@ -19,11 +19,11 @@ type RevokeCertsParams struct {
 	UniqueId string `json:"unique_id"`
 }
 
-// RevokeCerts 吊销证书
-// 	1. 通过 SN/AKI 吊销证书
-//  2. 通过 UniqueId 统一吊销证书
+// RevokeCerts Revocation of certificate
+// 	1. Revoke certificate through snaki
+//  2. Unified revocation of certificates through uniqueID
 func (l *Logic) RevokeCerts(params *RevokeCertsParams) error {
-	// 1. 通过标识找到证书
+	// 1. Certificate found by identity
 	db := l.db.Session(&gorm.Session{})
 
 	db = db.Where("status = ?", "good").
@@ -34,20 +34,20 @@ func (l *Logic) RevokeCerts(params *RevokeCertsParams) error {
 	} else if params.AKI != "" && params.SN != "" {
 		db = db.Where("serial_number = ? AND authority_key_identifier = ?", params.SN, params.AKI)
 	} else {
-		return errors.New("参数错误")
+		return errors.New("Parameter error")
 	}
 
 	certs, _, err := dao.GetAllCertificates(db, 1, 1000, "issued_at desc")
 	if err != nil {
-		l.logger.With("params", params).Errorf("数据库查询错误: %s", err)
-		return errors.Wrap(err, "数据库查询错误")
+		l.logger.With("params", params).Errorf("Database query error: %s", err)
+		return errors.Wrap(err, "Database query error")
 	}
 
 	if len(certs) == 0 {
-		return errors.New("未找到证书")
+		return errors.New("Certificate not found")
 	}
 
-	// 2. 批量吊销证书
+	// 2. Batch revocation certificate
 	reason, _ := ocsp.ReasonStringToCode("cacompromise")
 	err = l.db.Transaction(func(tx *gorm.DB) error {
 		for _, cert := range certs {
@@ -64,11 +64,11 @@ func (l *Logic) RevokeCerts(params *RevokeCertsParams) error {
 		return nil
 	})
 	if err != nil {
-		l.logger.Errorf("批量吊销证书错误: %s", err)
-		return errors.Wrap(err, "批量吊销证书错误")
+		l.logger.Errorf("Batch revocation certificate error: %s", err)
+		return errors.Wrap(err, "Batch revocation certificate error")
 	}
 
-	// 3. 记录操作日志
+	// 3. Record operation log
 	for _, cert := range certs {
 		events.NewWorkloadLifeCycle("revoke", events.OperatorMSP, events.CertOp{
 			UniqueId: cert.CommonName.String,
@@ -86,11 +86,11 @@ type RecoverCertsParams struct {
 	UniqueId string `json:"unique_id"`
 }
 
-// RecoverCerts 恢复证书
-// 	1. 通过 SN/AKI 恢复证书
-//  2. 通过 UniqueId 统一恢复证书
+// RecoverCerts Restore certificate
+// 	1. Recover certificate through snaki
+//  2. Unified certificate recovery through uniqueID
 func (l *Logic) RecoverCerts(params *RecoverCertsParams) error {
-	// 1. 通过标识找到证书
+	// 1. Certificate found by identity
 	db := l.db.Session(&gorm.Session{})
 
 	db = db.Where("status = ?", "revoked").
@@ -102,20 +102,20 @@ func (l *Logic) RecoverCerts(params *RecoverCertsParams) error {
 	case params.AKI != "" && params.SN != "":
 		db = db.Where("serial_number = ? AND authority_key_identifier = ?", params.SN, params.AKI)
 	default:
-		return errors.New("参数错误")
+		return errors.New("Parameter error")
 	}
 
 	certs, _, err := dao.GetAllCertificates(db, 1, 1000, "issued_at desc")
 	if err != nil {
-		l.logger.With("params", params).Errorf("数据库查询错误: %s", err)
-		return errors.Wrap(err, "数据库查询错误")
+		l.logger.With("params", params).Errorf("Database query error: %s", err)
+		return errors.Wrap(err, "Database query error")
 	}
 
 	if len(certs) == 0 {
-		return errors.New("未找到证书")
+		return errors.New("Certificate not found")
 	}
 
-	// 2. 批量恢复证书
+	// 2. Batch recovery certificate
 	err = l.db.Transaction(func(tx *gorm.DB) error {
 		for _, cert := range certs {
 			err := tx.Model(&model.Certificates{}).Where(&model.Certificates{
@@ -134,7 +134,7 @@ func (l *Logic) RecoverCerts(params *RecoverCertsParams) error {
 		return err
 	}
 
-	// 3. 记录操作日志
+	// 3. Record operation log
 	for _, cert := range certs {
 		events.NewWorkloadLifeCycle("recover", events.OperatorMSP, events.CertOp{
 			UniqueId: cert.CommonName.String,
@@ -150,9 +150,9 @@ type ForbidNewCertsParams struct {
 	UniqueIds []string `json:"unique_ids"`
 }
 
-// ForbidNewCerts 禁止某个 UniqueID 申请证书
-//	1. 禁止 UniqueId 申请新证书
-//  2. 日志记录
+// ForbidNewCerts Prohibit a uniqueID from requesting a certificate
+//	1.UniqueID is not allowed to apply for a new certificate
+//  2. Logging
 func (l *Logic) ForbidNewCerts(params *ForbidNewCertsParams) error {
 	err := l.db.Transaction(func(tx *gorm.DB) error {
 		for _, uid := range params.UniqueIds {
@@ -163,18 +163,18 @@ func (l *Logic) ForbidNewCerts(params *ForbidNewCertsParams) error {
 			}
 			_, _, err := dao.AddForbid(tx, &record)
 			if err != nil {
-				l.logger.With("record", record).Errorf("数据库插入错误: %s", err)
+				l.logger.With("record", record).Errorf("Database insert error: %s", err)
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		l.logger.Errorf("数据库插入错误: %s", err)
+		l.logger.Errorf("Database insert error: %s", err)
 		return err
 	}
 
-	// 日志记录
+	// Logging
 	for _, uid := range params.UniqueIds {
 		events.NewWorkloadLifeCycle("forbid", events.OperatorMSP, events.CertOp{
 			UniqueId: uid,
@@ -184,8 +184,8 @@ func (l *Logic) ForbidNewCerts(params *ForbidNewCertsParams) error {
 	return nil
 }
 
-// RecoverForbidNewCerts 恢复允许某个 UniqueID 申请证书
-//	1. 允许 UniqueId 申请新证书
+// RecoverForbidNewCerts Recovery allows a uniqueID to request a certificate
+//	1. Allow uniqueID to request a new certificate
 func (l *Logic) RecoverForbidNewCerts(params *ForbidNewCertsParams) error {
 	err := l.db.Transaction(func(tx *gorm.DB) error {
 		for _, uid := range params.UniqueIds {
@@ -193,18 +193,18 @@ func (l *Logic) RecoverForbidNewCerts(params *ForbidNewCertsParams) error {
 				Where("deleted_at IS NULL").
 				Update("deleted_at", time.Now()).Error
 			if err != nil {
-				l.logger.With("unique_id", uid).Errorf("数据库更新错误: %s", err)
+				l.logger.With("unique_id", uid).Errorf("Database update error: %s", err)
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		l.logger.Errorf("数据库更新错误: %s", err)
+		l.logger.Errorf("Database update error: %s", err)
 		return err
 	}
 
-	// 日志记录
+	// Logging
 	for _, uid := range params.UniqueIds {
 		events.NewWorkloadLifeCycle("recover-forbid", events.OperatorMSP, events.CertOp{
 			UniqueId: uid,

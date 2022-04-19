@@ -3,9 +3,9 @@ package test
 import (
 	"fmt"
 	"github.com/valyala/fasthttp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	cflog "gitlab.oneitfarm.com/bifrost/cfssl/log"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/spiffe"
+	cflog "github.com/ztalab/cfssl/log"
 	"net"
 	"testing"
 	"time"
@@ -26,7 +26,7 @@ func BenchmarkNormalHTTP(b *testing.B) {
 func BenchmarkHTTPS(b *testing.B) {
 	cflog.Level = cflog.LevelDebug
 	c := caclient.NewCAI(
-		caclient.WithCAServer(caclient.RoleSidecar, "https://127.0.0.1:8081"),
+		caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
 		caclient.WithOcspAddr("http://127.0.0.1:8082"))
 	serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
 		SiteID:    "test_site",
@@ -39,12 +39,12 @@ func BenchmarkHTTPS(b *testing.B) {
 		UniqueID:  "client1",
 	})
 	if err != nil {
-		b.Error("transport 错误: ", err)
+		b.Error("transport Error: ", err)
 	}
 
 	serverTls, err := serverEx.ServerTLSConfig()
 	if err != nil {
-		b.Error("服务器 tls 获取错误: ", err)
+		b.Error("Server TLS get error: ", err)
 	}
 	clientTls, err := clientEx.ClientTLSConfig("127.0.0.1")
 	if err != nil {
@@ -71,7 +71,7 @@ func httpServer() {
 
 	if err := fasthttp.Serve(ln, func(ctx *fasthttp.RequestCtx) {
 		str := ctx.Request.String()
-		fmt.Println("服务器接收: ", str)
+		fmt.Println("Server reception: ", str)
 		ctx.SetStatusCode(200)
 		ctx.SetBody([]byte("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
 	}); err != nil {

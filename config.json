@@ -4,26 +4,14 @@
       "type": "standard",
       "key": "52abb3ac91971bb72bce17e7a289cd04476490b19e0d8eb7810dc42d4ac16c41"
     },
-    "sidecar": {
+    "default": {
       "type": "standard",
       "key": "0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"
-    },
-    "gateway": {
-      "type": "standard",
-      "key": "535d9739ce646a30ff4a8754a8f8fbe5693ff49544ba62e54113785cefff81a3"
-    },
-    "idg-registry": {
-      "type": "standard",
-      "key": "ea62fa7c27307017694689f0adff09f63186cadfe92fb802133f980b75858fc6"
-    },
-    "gatekeeper": {
-      "type": "standard",
-      "key": "1fb4d8144367a1cdc59500a2e81f7902a4cd5da4a1f1b2211eff42202b5b70e8"
     }
   },
   "signing": {
     "profiles": {
-      "sidecar": {
+      "default": {
         "usages": [
           "signing",
           "key encipherment",
@@ -32,18 +20,7 @@
         ],
         "expiry": "1440h",
         "copy_extensions": true,
-        "auth_key": "sidecar"
-      },
-      "gateway": {
-        "usages": [
-          "signing",
-          "key encipherment",
-          "server auth",
-          "client auth"
-        ],
-        "expiry": "8760h",
-        "copy_extensions": true,
-        "auth_key": "gateway"
+        "auth_key": "default"
       },
       "intermediate": {
         "usages": [
@@ -57,38 +34,7 @@
         "ca_constraint": {
           "is_ca": true
         }
-      },
-      "idg-registry": {
-        "usages": [
-          "signing",
-          "key encipherment",
-          "server auth",
-          "client auth"
-        ],
-        "expiry": "8760h",
-        "copy_extensions": true,
-        "auth_key": "idg-registry"
-      },
-      "gatekeeper": {
-        "usages": [
-          "signing",
-          "key encipherment",
-          "server auth",
-          "client auth"
-        ],
-        "expiry": "8760h",
-        "copy_extensions": true,
-        "auth_key": "gatekeeper"
       }
-    },
-    "default": {
-      "usages": [
-        "signing",
-        "key encipherment",
-        "server auth",
-        "client auth"
-      ],
-      "expiry": "8760h"
     }
   }
 }

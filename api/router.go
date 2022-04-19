@@ -6,14 +6,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/v1/ca"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/v1/certleaf"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/v1/health"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/v1/vault"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/v1/workload"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/docs"
+	"github.com/ztalab/ZACA/api/helper"
+	"github.com/ztalab/ZACA/api/v1/ca"
+	"github.com/ztalab/ZACA/api/v1/certleaf"
+	"github.com/ztalab/ZACA/api/v1/health"
+	"github.com/ztalab/ZACA/api/v1/workload"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/docs"
 )
 
 func Serve() *gin.Engine {
@@ -44,7 +43,7 @@ func Serve() *gin.Engine {
 		prefix.GET("/cert", helper.WrapH(handler.CertDetail))
 		prefix.GET("/units_forbid_query", helper.WrapH(handler.UnitsForbidQuery))
 		prefix.GET("/units_certs_list", helper.WrapH(handler.UnitsCertsList))
-		// Root CA 禁止操作
+		// Root CA Prohibit operation
 		if !core.Is.Config.Keymanager.SelfSign {
 			lifeCyclePrefix := prefix.Group("/lifecycle")
 			{
@@ -78,16 +77,5 @@ func Serve() *gin.Engine {
 		prefix.GET("/cert_chain", helper.WrapH(handler.CertChain))
 		prefix.GET("/cert_chain_from_root", helper.WrapH(handler.CertChainFromRoot))
 	}
-
-	{
-		// Vault
-		prefix := v1.Group("/vault")
-		prefix.GET("/token", helper.WrapH(vault.RootToken))
-	}
-
-	//if err := router.Run(core.Is.Config.HTTP.Listen); err != nil {
-	//	v2log.Named("router").Fatalf("listen err: %v", err)
-	//	return err
-	//}
 	return router
 }

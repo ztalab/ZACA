@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	jsoniter "github.com/json-iterator/go"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 )
 
 const (
@@ -13,11 +13,11 @@ const (
 )
 
 var CategoriesStrings = map[string]string{
-	CategoryWorkloadLifecycle: "Workload生命周期",
+	CategoryWorkloadLifecycle: "Workload life cycle",
 }
 
 const (
-	OperatorMSP = "MSP平台"
+	OperatorMSP = "MSP platform"
 	OperatorSDK = "SDK"
 )
 
@@ -27,18 +27,18 @@ type CertOp struct {
 	AKI      string `json:"aki"`
 }
 
-// Op 操作记录
+// Op Operation record
 type Op struct {
-	Operator string      `json:"operator"` // 操作人
-	Category string      `json:"category"` // 分类
-	Type     string      `json:"type"`     // 操作类型
-	Obj      interface{} `json:"obj"`      // 操作对象
+	Operator string      `json:"operator"` // Operator
+	Category string      `json:"category"` // Classification
+	Type     string      `json:"type"`     // Operation type
+	Obj      interface{} `json:"obj"`      // Operation object
 }
 
 func (o *Op) Log() {
 	objStr, _ := jsoniter.MarshalToString(o.Obj)
-	v2log.Named(LoggerName).
-		With(v2log.DynFieldCustomLog1, fmt.Sprintf("%s.%s", o.Category, o.Type)).
-		With(v2log.DynFieldCustomLog3, o.Obj).
-		Infof("分类: %s, 操作: %s, 操作者: %s, 操作对象: %v", CategoriesStrings[o.Category], o.Type, o.Operator, objStr)
+	logger.Named(LoggerName).
+		With("flag", fmt.Sprintf("%s.%s", o.Category, o.Type)).
+		With("data", o.Obj).
+		Infof("Classification: %s, Operation: %s, Operator: %s, Operation object: %v", CategoriesStrings[o.Category], o.Type, o.Operator, objStr)
 }

@@ -7,16 +7,16 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/pkg/errors"
 	"github.com/tal-tech/go-zero/core/fx"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/api/helper"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/dao"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql/cfssl-model/model"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/logic/schema"
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/workload"
+	"github.com/ztalab/ZACA/api/helper"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
+	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
+	"github.com/ztalab/ZACA/logic/schema"
+	logic "github.com/ztalab/ZACA/logic/workload"
 )
 
 type API struct {
@@ -27,31 +27,30 @@ type API struct {
 func NewAPI() *API {
 	return &API{
 		logic:  logic.NewLogic(),
-		logger: v2log.Named("api").SugaredLogger,
+		logger: logger.Named("api").SugaredLogger,
 	}
 }
 
-// CertList 证书列表
+// CertList Certificate list
 // @Tags Workload
 // @Summary (p3)List
-// @Description 证书列表
+// @Description Certificate list
 // @Produce json
-// @Param role query string false "证书类型 gateway/sidecar/standalone"
-// @Param unique_id query string false "根据UniqueID查询"
-// @Param cert_sn query string false "根据证书序列号查询"
-// @Param status query string false "证书状态 good/revoked"
-// @Param order query string false "排序，默认 issued_at desc"
-// @Param expiry_start_time query string false "过期, 起始时间点"
-// @Param expiry_end_time query string false "过期, 结束时间点"
-// @Param limit_num query int false "分页参数, 默认 20"
-// @Param page query int false "页数, 默认 1"
+// @Param role query string false "Certificate type default"
+// @Param unique_id query string false "Query by unique ID"
+// @Param cert_sn query string false "Query by certificate serial number"
+// @Param status query string false "Certificate status good/revoked"
+// @Param order query string false "Sort, default issued_at desc"
+// @Param expiry_start_time query string false "Expiration, starting point"
+// @Param expiry_end_time query string false "Expiration, end time point"
+// @Param limit_num query int false "Paging parameters, default 20"
+// @Param page query int false "Number of pages, default 1"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=helper.MSPNormalizeList{list=[]schema.SampleCert}} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
 // @Router /workload/certs [get]
 func (a *API) CertList(c *helper.HTTPWrapContext) (interface{}, error) {
 	var req = struct {
-		// 查询条件
 		Role            string `form:"role"`
 		UniqueID        string `form:"unique_id"`
 		Status          string `form:"status"`
@@ -91,20 +90,19 @@ func (a *API) CertList(c *helper.HTTPWrapContext) (interface{}, error) {
 	return result, nil
 }
 
-// CertDetail 证书详情
+// CertDetail Certificate details
 // @Tags Workload
 // @Summary Detail
-// @Description 证书详情
+// @Description Certificate details
 // @Produce json
-// @Param sn query string true "证书 sn"
-// @Param aki query string true "证书 aki"
+// @Param sn query string true "Certificate sn"
+// @Param aki query string true "Certificate aki"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=schema.FullCert} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
 // @Router /workload/cert [get]
 func (a *API) CertDetail(c *helper.HTTPWrapContext) (interface{}, error) {
 	var req struct {
-		// 查询条件
 		SN  string `form:"sn" binding:"required"`
 		AKI string `form:"aki" binding:"required"`
 	}
@@ -129,19 +127,18 @@ func (a *API) CertDetail(c *helper.HTTPWrapContext) (interface{}, error) {
 	return result, nil
 }
 
-// UnitsForbidQuery 查询 unique_id 是否被禁止申请证书
+// UnitsForbidQuery Query unique_ Is ID prohibited from applying for certificate
 // @Tags Workload
-// @Summary 禁止申请证书查询
-// @Description 查询 unique_id 是否被禁止申请证书
+// @Summary Prohibit applying for certificate query
+// @Description Query unique_id Is it forbidden to apply for certificate
 // @Produce json
-// @Param unique_ids query []string true "查询 unique_id 数组" collectionFormat(multi)
+// @Param unique_ids query []string true "Query unique_ID array" collectionFormat(multi)
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=logic.UnitsForbidQueryResult} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
 // @Router /workload/units_forbid_query [get]
 func (a *API) UnitsForbidQuery(c *helper.HTTPWrapContext) (interface{}, error) {
 	var req struct {
-		// 查询条件
 		UniqueIds []string `form:"unique_ids" binding:"required"`
 	}
 	c.BindG(&req)
@@ -159,12 +156,12 @@ type UnitsStatusReq struct {
 	UniqueIds []string `json:"unique_ids" binding:"required"`
 }
 
-// UnitsStatus 服务对应状态查询
+// UnitsStatus Service corresponding status query
 // @Tags Workload
-// @Summary (p1)服务对应状态查询
-// @Description 服务对应状态查询
+// @Summary (p1)Service corresponding status query
+// @Description Service corresponding status query
 // @Produce json
-// @Param json body UnitsStatusReq true "查询 unique_id 数组"
+// @Param json body UnitsStatusReq true "Query unique_ID array"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=object} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
@@ -216,7 +213,7 @@ func (a *API) getUnitsStatus(uniqueIds []string) (UnitsStatusMap, error) {
 
 	var list []*model.Certificates
 	if err := query.Find(&list).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		a.logger.Errorf("数据库查询错误: %s", err)
+		a.logger.Errorf("Database query error: %s", err)
 		return nil, err
 	}
 
@@ -245,26 +242,25 @@ type UnitsCertsItem struct {
 	Forbidden bool               `json:"forbidden"`
 }
 
-// UnitsCertsList 服务证书列表
+// UnitsCertsList List of service certificates
 // Deprecated
 // @Tags Workload
-// @Summary (p1)服务证书列表
-// @Description 服务证书列表
+// @Summary (p1)List of service certificates
+// @Description List of service certificates
 // @Produce json
-// @Param unique_id query string false "查询 unique_id"
-// @Param role query string false "证书类型"
-// @Param expiry_start_time query string false "过期, 起始时间点"
-// @Param expiry_end_time query string false "过期, 结束时间点"
-// @Param is_forbid query int false "是否禁用, 1禁用 2启用"
-// @Param limit_num query int false "分页参数, 默认 20"
-// @Param page query int false "页数, 默认 1"
+// @Param unique_id query string false "Query unique_id"
+// @Param role query string false "Certificate type"
+// @Param expiry_start_time query string false "Expiration, starting point"
+// @Param expiry_end_time query string false "Expiration, end time point"
+// @Param is_forbid query int false "Disable, 1 disable, 2 enable"
+// @Param limit_num query int false "Paging parameters, default 20"
+// @Param page query int false "Number of pages, default 1"
 // @Success 200 {object} helper.MSPNormalizeHTTPResponseBody{data=[]UnitsCertsItem} " "
 // @Failure 400 {object} helper.HTTPWrapErrorResponse
 // @Failure 500 {object} helper.HTTPWrapErrorResponse
 // @Router /workload/units_certs_list [get]
 func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 	var req = struct {
-		// 查询条件
 		UniqueID        string `form:"unique_id"`
 		Role            string `form:"role"`
 		ExpiryStartTime string `form:"expiry_start_time"`
@@ -298,7 +294,7 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 	if req.ExpiryStartTime != "" {
 		date, err := dateparse.ParseAny(req.ExpiryStartTime)
 		if err != nil {
-			return nil, errors.Wrap(err, "过期起始时间错误")
+			return nil, errors.Wrap(err, "Expiration start time error")
 		}
 		query = query.Where("expiry > ?", date)
 		expiryStartDate = &date
@@ -307,7 +303,7 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 	if req.ExpiryEndTime != "" {
 		date, err := dateparse.ParseAny(req.ExpiryEndTime)
 		if err != nil {
-			return nil, errors.Wrap(err, "过期结束时间错误")
+			return nil, errors.Wrap(err, "Expiration end time error")
 		}
 		query = query.Where("expiry < ?", date)
 		expiryEndDate = &date
@@ -325,7 +321,7 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 	if len(uniqueIds) == 0 {
 		list, total, err := dao.GetAllCertificates(query, req.Page, req.LimitNum, "common_name asc")
 		if err != nil {
-			a.logger.Errorf("数据库查询错误: %s", err)
+			a.logger.Errorf("Database query error: %s", err)
 			return nil, err
 		}
 
@@ -364,17 +360,17 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 
 	list, _, err := dao.GetAllCertificates(query, 1, 100, "issued_at desc")
 	if err != nil {
-		a.logger.Errorf("数据库查询错误: %s", err)
+		a.logger.Errorf("Database query error: %s", err)
 		return nil, err
 	}
 
-	a.logger.Debugf("返回证书数量: %v", len(list))
+	a.logger.Debugf("Number of returned certificates: %v", len(list))
 
 	forbidMap, err := a.logic.UnitsForbidQuery(&logic.UnitsForbidQueryParams{
 		UniqueIds: uniqueIds,
 	})
 	if err != nil {
-		a.logger.Errorf("服务禁止状态查询错误: %s", err)
+		a.logger.Errorf("Service prohibition status query error: %s", err)
 		return nil, err
 	}
 
@@ -390,7 +386,7 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 
 		fullCert, err := schema.GetFullCertByModelCert(row)
 		if err != nil {
-			a.logger.Errorf("获取 full cert 错误: %s", err)
+			a.logger.Errorf("Get full cert error: %s", err)
 			continue
 		}
 		unitsCertsMap[uid].Certs = append(unitsCertsMap[uid].Certs, fullCert)
@@ -401,7 +397,7 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 		result = append(result, v)
 	}
 
-	a.logger.Debugf("返回服务数量: %v", len(result))
+	a.logger.Debugf("Return service quantity: %v", len(result))
 
 	return helper.MSPNormalizeList{
 		List: result,
@@ -414,9 +410,6 @@ func (a *API) UnitsCertsList(c *helper.HTTPWrapContext) (interface{}, error) {
 }
 
 //func getExpiryCountByDuration(sign string) (before, after time.Time, err error) {
-//	// 一周内
-//	// 过期时间 - 当前时间 <= 一周
-//	// 过期时间 <= 当前时间 + 一周
 //	expiryDate := func(du time.Duration) time.Time {
 //		return time.Now().Add(du)
 //	}

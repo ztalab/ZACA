@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	jsoniter "github.com/json-iterator/go"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/signature"
+	"github.com/ztalab/ZACA/pkg/signature"
 )
 
 var revokePath = "/api/v1/cfssl/revoke"
@@ -26,7 +26,7 @@ type RevokeRequest struct {
 	Profile string `json:"profile"`
 }
 
-// RevokeItSelf 吊销自身证书
+// RevokeItSelf Revoke one's own certificate
 func (ex *Exchanger) RevokeItSelf() error {
 	tlsCert, err := ex.Transport.GetCertificate()
 	if err != nil {
@@ -38,7 +38,7 @@ func (ex *Exchanger) RevokeItSelf() error {
 	if err := revokeCert(ex.caAddr, priv, cert); err != nil {
 		return err
 	}
-	ex.logger.With("sn", cert.SerialNumber.String()).Info("服务下线吊销自身证书")
+	ex.logger.With("sn", cert.SerialNumber.String()).Info("Service offline revoking its own certificate")
 
 	return nil
 }
@@ -60,7 +60,7 @@ func revokeCert(caAddr string, priv crypto.PublicKey, cert *x509.Certificate) er
 	req := &RevokeRequest{
 		Serial: cert.SerialNumber.String(),
 		AKI:    hex.EncodeToString(cert.AuthorityKeyId),
-		Reason: "", // 默认为 0
+		Reason: "",
 		Nonce:  nonce,
 		Sign:   sign,
 	}
@@ -71,12 +71,12 @@ func revokeCert(caAddr string, priv crypto.PublicKey, cert *x509.Certificate) er
 
 	resp, err := httpClient.Post(caAddr+revokePath, "application/json", buf)
 	if err != nil {
-		return errors.Wrap(err, "请求错误")
+		return errors.Wrap(err, "Request error")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("请求错误")
+		return errors.New("Request error")
 	}
 
 	return nil

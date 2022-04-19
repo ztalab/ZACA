@@ -1,4 +1,4 @@
-// Package ca 配置类展示
+// Package ca Configuration class display
 package ca
 
 import (
@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/config"
+	"github.com/ztalab/cfssl/config"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
+	"github.com/ztalab/ZACA/core"
 )
 
 type RoleProfile struct {
@@ -20,13 +20,13 @@ type RoleProfile struct {
 	IsCa           bool          `json:"is_ca"`
 }
 
-// RoleProfiles 展示环境隔离状态
-//  不需要参数
+// RoleProfiles Show environmental isolation status
+//  No parameters are required
 func (l *Logic) RoleProfiles() ([]RoleProfile, error) {
 	cfg := core.Is.Config.Singleca.CfsslConfig
 	if cfg == nil {
-		l.logger.Error("cfssl config 为空")
-		return nil, errors.New("cfssl config 为空")
+		l.logger.Error("cfssl config Empty")
+		return nil, errors.New("cfssl config Empty")
 	}
 	roles := make([]RoleProfile, 0, len(cfg.Signing.Profiles)+1)
 

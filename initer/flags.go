@@ -9,19 +9,18 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
-	cfssl_config "gitlab.oneitfarm.com/bifrost/cfssl/config"
+	cfssl_config "github.com/ztalab/cfssl/config"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core/config"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/core/config"
+	"github.com/ztalab/ZACA/pkg/influxdb"
 )
 
 const (
-	G_                = "IS"
-	ConfName          = "conf"
-	CmdlineEnvDefault = "default"
-	CmdlineEnvTest    = "test"
-	CmdlineEnvProd    = "prod"
+	G_             = "IS"
+	ConfName       = "conf"
+	CmdlineEnvTest = "test"
+	CmdlineEnvProd = "prod"
 )
 
 var (
@@ -33,10 +32,9 @@ var (
 func parseConfigs(c *cli.Context) (core.Config, error) {
 	// Cmdline flags
 	flag.Parse()
-	// ENV 读取
 	godotenv.Load(*flagEnvfile)
 	// Default config
-	viper.SetConfigName(fmt.Sprintf("%v.%v", ConfName, CmdlineEnvDefault))
+	viper.SetConfigName(fmt.Sprintf("%v.%v", ConfName, CmdlineEnvTest))
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
 		return core.Config{}, err
@@ -79,13 +77,6 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 				Key:  viper.GetString("log.log-proxy.key"),
 			},
 		},
-		Registry: config.Registry{
-			SelfName: viper.GetString("registry.self-name") + "." + hs,
-			Command:  c.Args().First(),
-		},
-		Redis: config.Redis{
-			Nodes: viper.GetStringSlice("redis.nodes"),
-		},
 		Keymanager: config.Keymanager{
 			UpperCa:  viper.GetStringSlice("keymanager.upper-ca"),
 			SelfSign: viper.GetBool("keymanager.self-sign"),
@@ -104,16 +95,6 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 		Singleca: config.Singleca{
 			ConfigPath: viper.GetString("singleca.config-path"),
 		},
-		Election: config.Election{
-			Enabled:      viper.GetBool("election.enabled"),
-			ID:           viper.GetString("election.id"),
-			Baseon:       viper.GetString("election.baseon"),
-			AlwaysLeader: viper.GetBool("election.always-leader"),
-		},
-		GatewayNervs: config.GatewayNervs{
-			Enabled:  viper.GetBool("gateway-nervs.enabled"),
-			Endpoint: viper.GetString("gateway-nervs.endpoint"),
-		},
 		OCSPHost: viper.GetString("ocsp-host"),
 		HTTP: config.HTTP{
 			OcspListen: viper.GetString("http.ocsp-listen"),
@@ -124,11 +105,10 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 			Dsn: viper.GetString("mysql.dsn"),
 		},
 		Vault: config.Vault{
-			Enabled:  viper.GetBool("vault.enabled"),
-			Addr:     viper.GetString("vault.addr"),
-			Token:    viper.GetString("vault.token"),
-			Prefix:   viper.GetString("vault.prefix"),
-			Discover: viper.GetString("vault.discover"),
+			Enabled: viper.GetBool("vault.enabled"),
+			Addr:    viper.GetString("vault.addr"),
+			Token:   viper.GetString("vault.token"),
+			Prefix:  viper.GetString("vault.prefix"),
 		},
 		Influxdb: influxdb.CustomConfig{
 			Enabled:             viper.GetBool("influxdb.enabled"),
@@ -147,17 +127,10 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 			FlushSize:           viper.GetInt("influxdb.flush-size"),
 			FlushTime:           viper.GetInt("influxdb.flush-time"),
 		},
-		Mesh: config.Mesh{
-			MSPPortalAPI: viper.GetString("mesh.msp-portal-api"),
-		},
 		SwaggerEnabled: viper.GetBool("swagger-enabled"),
 		Debug:          viper.GetBool("debug"),
 		Version:        viper.GetString("version"),
 		Hostname:       hostname,
-		Metrics: config.Metrics{
-			CpuLimit: viper.GetFloat64("metrics.cpu-limit"),
-			MemLimit: viper.GetFloat64("metrics.mem-limit"),
-		},
 		Ocsp: config.Ocsp{
 			CacheTime: viper.GetInt("ocsp.cache-time"),
 		},
@@ -170,7 +143,7 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 
 	cfg, err := cfssl_config.LoadFile(conf.Singleca.ConfigPath)
 	if err != nil {
-		return conf, fmt.Errorf("cfssl 配置文件 %s 错误: %s", conf.Singleca.ConfigPath, err)
+		return conf, fmt.Errorf("cfssl configuration file %s Error: %s", conf.Singleca.ConfigPath, err)
 	}
 
 	cfg.Signing.Default.OCSP = conf.OCSPHost

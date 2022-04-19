@@ -1,10 +1,10 @@
 package ca
 
 import (
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"go.uber.org/zap"
 
-	logic "gitlab.oneitfarm.com/bifrost/capitalizone/logic/ca"
+	logic "github.com/ztalab/ZACA/logic/ca"
 )
 
 type API struct {
@@ -14,7 +14,7 @@ type API struct {
 
 func NewAPI() *API {
 	return &API{
-		logger: v2log.Named("api").SugaredLogger,
+		logger: logger.Named("api").SugaredLogger,
 		logic:  logic.NewLogic(),
 	}
 }

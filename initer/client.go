@@ -3,42 +3,19 @@ package initer
 import (
 	"crypto/tls"
 	"fmt"
-	"gitlab.oneitfarm.com/bifrost/go-toolbox/rediscluster"
 	"net/http"
 	"time"
 
 	vaultAPI "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	influx_client "gitlab.oneitfarm.com/bifrost/influxdata/influxdb1-client/v2"
+	influx_client "github.com/ztalab/ZACA/pkg/influxdb/influxdb-client/v2"
 	mysqlDriver "gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/database/mysql"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/influxdb"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/util"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/database/mysql"
+	"github.com/ztalab/ZACA/pkg/influxdb"
 )
-
-func kubeDialer(config *core.Config, logger *core.Logger) (kubeCli *kubernetes.Clientset, err error) {
-	err = util.RetryWithTimeout(func() error {
-		kubeConfig, err := rest.InClusterConfig()
-		if err != nil {
-			return fmt.Errorf("failed to create in-cluster kubernetes client configuration: %v", err)
-		}
-		logger.Infof("kubeconfig: %v", kubeConfig)
-
-		kubeCli, err = kubernetes.NewForConfig(kubeConfig)
-		if err != nil {
-			return fmt.Errorf("failed to create kubernetes client: %v", err)
-		}
-		return nil
-	}, time.Second, 1*time.Minute, logger.SugaredLogger)
-
-	logger.Info("kubernetes client inited.")
-	return
-}
 
 func mysqlDialer(config *core.Config, logger *core.Logger) (*gorm.DB, error) {
 	db, err := gorm.Open(mysqlDriver.Open(config.Mysql.Dsn), &gorm.Config{
@@ -59,7 +36,7 @@ func mysqlDialer(config *core.Config, logger *core.Logger) (*gorm.DB, error) {
 
 func influxdbDialer(config *core.Config, logger *core.Logger) {
 	if !config.Influxdb.Enabled {
-		logger.Warn("Influxdb 功能禁用")
+		logger.Warn("Influxdb Function disabled")
 		return
 	}
 	tick := time.NewTicker(10 * time.Second)
@@ -125,33 +102,4 @@ func vaultDialer(config *core.Config, logger *core.Logger) (*vaultAPI.Client, er
 	logger.Infof("sealed: %v, process: %v", status.Sealed, status.Progress)
 
 	return cli, nil
-}
-
-func redisDialer(config *core.Config, logger *core.Logger) (cluster *rediscluster.Cluster, err error) {
-	fmt.Printf("redis nodes: %s", config.Redis.Nodes)
-	if len(config.Redis.Nodes) == 0 {
-		logger.Warn("Redis Nodes未配置")
-		return nil, nil
-	}
-	cluster, err = rediscluster.NewCluster(
-		&rediscluster.Options{
-			StartNodes:   config.Redis.Nodes,
-			ConnTimeout:  500 * time.Millisecond,
-			ReadTimeout:  500 * time.Millisecond,
-			WriteTimeout: 500 * time.Millisecond,
-			KeepAlive:    16,
-			AliveTime:    60 * time.Second,
-		})
-
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := cluster.Do("ping", "")
-	if err != nil {
-		return nil, err
-	}
-	logger.Infof("redis ping: %v", resp)
-
-	return
 }

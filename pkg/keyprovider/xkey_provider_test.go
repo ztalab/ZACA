@@ -2,8 +2,8 @@ package keyprovider
 
 import (
 	"fmt"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/keygen"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
+	"github.com/ztalab/ZACA/pkg/keygen"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 	"testing"
 )
 

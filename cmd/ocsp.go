@@ -3,11 +3,11 @@ package cmd
 import (
 	"context"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	ocsp_responder "gitlab.oneitfarm.com/bifrost/capitalizone/ca/ocsp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/singleca"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
-	"gitlab.oneitfarm.com/bifrost/cfssl/ocsp"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	ocsp_responder "github.com/ztalab/ZACA/ca/ocsp"
+	"github.com/ztalab/ZACA/ca/singleca"
+	"github.com/ztalab/ZACA/core"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/cfssl/ocsp"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -16,11 +16,11 @@ import (
 	"time"
 )
 
-// InitOcspServer 初始化ocsp服务
+// InitOcspServer Initialize OCSP service
 func InitOcspServer(ctx context.Context, ocspSigner ocsp.Signer) func() {
 	src, err := ocsp_responder.NewSharedSources(ocspSigner)
 	if err != nil {
-		logger.Errorf("OCSP Sources 创建错误: %v", err)
+		logger.Errorf("OCSP Sources Create error: %v", err)
 		panic(err)
 	}
 	ocsp_responder.CountAll()
@@ -44,7 +44,7 @@ func InitOcspServer(ctx context.Context, ocspSigner ocsp.Signer) func() {
 	}()
 
 	if !core.Is.Config.Debug {
-		// 时序监控
+		// Timing monitoring
 		metrics := http.NewServeMux()
 		metrics.Handle("/metrics", promhttp.Handler())
 		metrics.HandleFunc("/debug/pprof/", pprof.Index)
@@ -82,7 +82,7 @@ func InitOcspServer(ctx context.Context, ocspSigner ocsp.Signer) func() {
 	}
 }
 
-// RunOcsp 运行服务
+// RunOcsp Running services
 func RunOcsp(ctx context.Context) error {
 	state := 1
 	sc := make(chan os.Signal, 1)
@@ -93,7 +93,7 @@ func RunOcsp(ctx context.Context) error {
 EXIT:
 	for {
 		sig := <-sc
-		logger.Infof("接收到信号[%s]", sig.String())
+		logger.Infof("Received signal[%s]", sig.String())
 		switch sig {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			state = 0
@@ -105,7 +105,7 @@ EXIT:
 	}
 
 	cleanFunc()
-	logger.Infof("Ocsp服务退出")
+	logger.Infof("Exit OCSP service")
 	time.Sleep(time.Second)
 	os.Exit(state)
 	return nil

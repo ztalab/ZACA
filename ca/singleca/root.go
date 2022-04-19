@@ -15,18 +15,18 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/cfssl/certdb/sql"
-	"gitlab.oneitfarm.com/bifrost/cfssl/cli"
+	"github.com/ztalab/cfssl/certdb/sql"
+	"github.com/ztalab/cfssl/cli"
 	// ...
-	_ "gitlab.oneitfarm.com/bifrost/cfssl/cli/ocspsign"
-	"gitlab.oneitfarm.com/bifrost/cfssl/ocsp"
-	"gitlab.oneitfarm.com/bifrost/cfssl/signer"
-	"gitlab.oneitfarm.com/bifrost/cfssl/signer/local"
+	_ "github.com/ztalab/cfssl/cli/ocspsign"
+	"github.com/ztalab/cfssl/ocsp"
+	"github.com/ztalab/cfssl/signer"
+	"github.com/ztalab/cfssl/signer/local"
 
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/keymanager"
-	ocsp_responder "gitlab.oneitfarm.com/bifrost/capitalizone/ca/ocsp"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/ca/upperca"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/core"
+	"github.com/ztalab/ZACA/ca/keymanager"
+	ocsp_responder "github.com/ztalab/ZACA/ca/ocsp"
+	"github.com/ztalab/ZACA/ca/upperca"
+	"github.com/ztalab/ZACA/core"
 )
 
 var (
@@ -78,13 +78,13 @@ func Server() (*mux.Router, error) {
 	var err error
 	logger := core.Is.Logger.Named("singleca")
 
-	// 证书签名
+	// Certificate signature
 	if core.Is.Config.Keymanager.SelfSign {
 		conf = cli.Config{
 			Disable: "sign,crl,gencrl,newcert,bundle,newkey,init_ca,scan,scaninfo,certinfo,ocspsign,/",
 		}
 		if err := keymanager.NewSelfSigner().Run(); err != nil {
-			logger.Fatalf("自签名证书错误: %v", err)
+			logger.Fatalf("Self signed certificate error: %v", err)
 		}
 		router.PathPrefix("/api/v1/cap/").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			localPort := core.Is.Config.HTTP.Listen
@@ -109,7 +109,7 @@ func Server() (*mux.Router, error) {
 			}
 
 			if err != nil {
-				logger.Errorf("请求错误: %s", err)
+				logger.Errorf("Request error: %s", err)
 				writer.WriteHeader(500)
 				writer.Write([]byte("server error"))
 			}
@@ -122,42 +122,41 @@ func Server() (*mux.Router, error) {
 			Disable: "crl,gencrl,newcert,bundle,newkey,init_ca,scan,scaninfo,certinfo,ocspsign,/",
 		}
 		if err := keymanager.NewRemoteSigner().Run(); err != nil {
-			logger.Fatalf("远程签名证书错误: %v", err)
+			logger.Fatalf("Remote signing certificate error: %v", err)
 		}
-		// 上级 CA 健康检查
+		// Superior CA health check
 		go upperca.NewChecker().Run()
 	}
 
 	logger.Info("Initializing signer")
 
-	// signer 赋值给全局变量 s
+	// signer Assign to global variable s
 	if s, err = local.NewDynamicSigner(
 		func() crypto.Signer {
 			priv, _, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Priv Key 错误: %v", err)
+				logger.Errorf("Error getting priv key: %v", err)
 			}
 			return priv
 		}, func() *x509.Certificate {
 			_, cert, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Cert 错误: %v", err)
+				logger.Errorf("Get cert error: %v", err)
 			}
 			return cert
 		}, func() x509.SignatureAlgorithm {
 			priv, _, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Priv Key 错误: %v", err)
+				logger.Errorf("Error getting priv key: %v", err)
 			}
 			return signer.DefaultSigAlgo(priv)
 		}, core.Is.Config.Singleca.CfsslConfig.Signing); err != nil {
 		logger.Errorf("couldn't initialize signer: %v", err)
 		return nil, err
 	}
-	// 替换 DB SQL
 	db, err = sqlx.Open("mysql", core.Is.Config.Mysql.Dsn)
 	if err != nil {
-		logger.Errorf("Sqlx 初始化出错: %v", err)
+		logger.Errorf("Sqlx Initialization error: %v", err)
 		return nil, err
 	}
 	s.SetDBAccessor(sql.NewAccessor(db))
@@ -166,16 +165,15 @@ func Server() (*mux.Router, error) {
 		func() *x509.Certificate {
 			_, cert, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Cert 错误: %v", err)
+				logger.Errorf("Get cert error: %v", err)
 			}
 			return cert
 		}, func() crypto.Signer {
 			priv, _, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Priv Key 错误: %v", err)
+				logger.Errorf("Error getting priv key: %v", err)
 			}
 			return priv
-			// cfssl 默认 96h
 		}, 4*24*time.Hour); err != nil {
 		logger.Warnf("couldn't initialize ocsp signer: %v", err)
 	}
@@ -183,49 +181,14 @@ func Server() (*mux.Router, error) {
 	endpoints["ocsp"] = func() (http.Handler, error) {
 		src, err := ocsp_responder.NewSharedSources(ocspSigner)
 		if err != nil {
-			logger.Errorf("OCSP Sources 创建错误: %v", err)
-			return nil, errors.Wrap(err, "sources 创建错误")
+			logger.Errorf("OCSP Sources Create error: %v", err)
+			return nil, errors.Wrap(err, "sources Create error")
 		}
 		ocsp_responder.CountAll()
 		return ocsp.NewResponder(src, nil), nil
 	}
 
 	registerHandlers()
-
-	//tlsCfg := tls.Config{
-	//	GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	//		return keymanager.GetKeeper().GetCachedTLSKeyPair()
-	//	},
-	//	InsecureSkipVerify: true,
-	//	ClientAuth:         tls.NoClientCert, // 运行集群内客户端单向 TLS 获取
-	//}
-	//
-	//// 启动 OCSP 服务器
-	//go func() {
-	//	src, err := ocsp_responder.NewSharedSources(ocspSigner)
-	//	if err != nil {
-	//		logger.Errorf("OCSP Sources 创建错误: %v", err)
-	//		return
-	//	}
-	//	ocsp_responder.CountAll()
-	//	mux := http.NewServeMux()
-	//	mux.Handle("/", ocsp.NewResponder(src, nil))
-	//
-	//	srv := &http.Server{
-	//		Addr: core.Is.Config.HTTP.OcspListen,
-	//		Handler: mux,
-	//	}
-	//	logger.Infof("Start OCSP Responser at %s, host: %s", srv.Addr, core.Is.Config.OCSPHost)
-	//	if err := srv.ListenAndServe(); err != nil {
-	//		logger.Errorf("OCSP Server 启动失败: %s", err)
-	//	}
-	//}()
-	//
-	//go func() {
-	//	if err := tlsServe(core.Is.Config.HTTP.CaListen, &tlsCfg); err != nil {
-	//		logger.Fatalf("CA TLS Server 启动失败: %s", err)
-	//	}
-	//}()
 
 	return router, nil
 }
@@ -239,23 +202,22 @@ func tlsServe(addr string, tlsConfig *tls.Config) error {
 	return server.ListenAndServeTLS("", "")
 }
 
-// OcspServer ocsp服务
+// OcspServer
 func OcspServer() ocsp.Signer {
 	logger := core.Is.Logger.Named("singleca")
 	ocspSigner, err := ocsp.NewDynamicSigner(
 		func() *x509.Certificate {
 			_, cert, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Cert 错误: %v", err)
+				logger.Errorf("Get cert error: %v", err)
 			}
 			return cert
 		}, func() crypto.Signer {
 			priv, _, err := keymanager.GetKeeper().GetCachedSelfKeyPair()
 			if err != nil {
-				logger.Errorf("获取 Priv Key 错误: %v", err)
+				logger.Errorf("Error getting priv key: %v", err)
 			}
 			return priv
-			// cfssl 默认 96h
 		}, 4*24*time.Hour)
 	if err != nil {
 		logger.Warnf("couldn't initialize ocsp signer: %v", err)

@@ -3,8 +3,8 @@ package influxdb
 import (
 	"errors"
 	"fmt"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
-	client "gitlab.oneitfarm.com/bifrost/influxdata/influxdb1-client/v2"
+	client "github.com/ztalab/ZACA/pkg/influxdb/influxdb-client/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 	"io"
 	"strings"
 	"sync"
@@ -41,14 +41,14 @@ type Response struct {
 func NewMetrics(influxDBHttpClient *HTTPClient, conf *CustomConfig) (metrics *Metrics) {
 	bp, err := client.NewBatchPoints(influxDBHttpClient.BatchPointsConfig)
 	if err != nil {
-		v2log.Named("metrics").Errorf("custom-influxdb client.NewBatchPoints err: %v", err)
+		logger.Named("metrics").Errorf("custom-influxdb client.NewBatchPoints err: %v", err)
 		return
 	}
 	metrics = &Metrics{
 		conf:               conf,
 		batchPoints:        bp,
 		point:              make(chan *client.Point, 16),
-		flushTimer:         time.NewTicker(time.Duration(conf.FlushTime) * time.Second), // 默认定时 30s 发送一次数据
+		flushTimer:         time.NewTicker(time.Duration(conf.FlushTime) * time.Second),
 		InfluxDBHttpClient: influxDBHttpClient,
 	}
 	go metrics.worker()
@@ -62,7 +62,7 @@ func (mt *Metrics) AddPoint(metricsData *MetricsData) {
 	//atomic.AddUint64(&mt.counter, 1)
 	pt, err := client.NewPoint(metricsData.Measurement, metricsData.Tags, metricsData.Fields, time.Now())
 	if err != nil {
-		v2log.Named("metrics").Errorf("custom-influxdb client.NewPoint err: %s", err)
+		logger.Named("metrics").Errorf("custom-influxdb client.NewPoint err: %s", err)
 		return
 	}
 	mt.point <- pt
@@ -77,14 +77,11 @@ func (mt *Metrics) worker() {
 				return
 			}
 			mt.batchPoints.AddPoint(p)
-			// 当点数量达到50的时候，发送数据
-			//fmt.Println("当前缓存的点的个数: ", mt.batchPoints.GetPointsNum())
-			//fmt.Println("当前缓存的点FlushSize: ", mt.conf.FlushSize)
+			// When the number of points reaches 50, send data
 			if mt.batchPoints.GetPointsNum() >= mt.conf.FlushSize {
 				mt.flush()
 			}
 		case <-mt.flushTimer.C:
-			//fmt.Println("定时器到，flush数据---------------------")
 			mt.flush()
 		}
 	}
@@ -101,15 +98,15 @@ func (mt *Metrics) flush() {
 		if strings.Contains(err.Error(), io.EOF.Error()) {
 			err = nil
 		} else {
-			v2log.Named("metric").Errorf("custom-influxdb client.Write err: %s", err)
+			logger.Named("metric").Errorf("custom-influxdb client.Write err: %s", err)
 		}
 	}
 	defer mt.InfluxDBHttpClient.FluxDBHttpClose()
-	// 清空所有的点
+	// Clear all points
 	mt.batchPoints.ClearPoints()
 }
 
-// 写入数据超时处理
+// Write data timeout processing
 func (mt *Metrics) Write() error {
 	ch := make(chan error, 1)
 	go func() {
@@ -118,7 +115,7 @@ func (mt *Metrics) Write() error {
 	select {
 	case err := <-ch:
 		return err
-	case <-time.After(800 * time.Millisecond): // 800豪秒超时
+	case <-time.After(800 * time.Millisecond):
 		return errors.New("write timeout")
 	}
 }
@@ -126,6 +123,6 @@ func (mt *Metrics) Write() error {
 func (mt *Metrics) count() {
 	for {
 		time.Sleep(time.Second)
-		fmt.Println("计数器：", atomic.LoadUint64(&mt.counter))
+		fmt.Println("Counter：", atomic.LoadUint64(&mt.counter))
 	}
 }

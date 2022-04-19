@@ -1,9 +1,9 @@
 package influxdb
 
 import (
-	cilog "gitlab.oneitfarm.com/bifrost/cilog/v2"
-	_ "gitlab.oneitfarm.com/bifrost/influxdata/influxdb1-client" // this is important because of the bug in go mod
-	client "gitlab.oneitfarm.com/bifrost/influxdata/influxdb1-client/v2"
+	_ "github.com/ztalab/ZACA/pkg/influxdb/influxdb-client" // this is important because of the bug in go mod
+	client "github.com/ztalab/ZACA/pkg/influxdb/influxdb-client/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 )
 
 // UDPClient UDP Client
@@ -18,7 +18,7 @@ func (p *UDPClient) newUDPV1Client() *UDPClient {
 		Addr: p.Conf.UDPAddress,
 	})
 	if err != nil {
-		cilog.Errorf("InfluxDBUDPClient err: %v", err)
+		logger.Errorf("InfluxDBUDPClient err: %v", err)
 	}
 	p.client = udpClient
 	return p

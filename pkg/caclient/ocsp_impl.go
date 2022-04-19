@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sync/singleflight"
 
 	"github.com/pkg/errors"
-	v2log "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/logger"
 )
 
 var ocspBlockSign int64 = 0
@@ -44,8 +44,8 @@ func SendOcspRequest(server string, req []byte, leaf, issuer *x509.Certificate) 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		v2log.With("url", server, v2log.DynFieldErrCode, resp.Status, "body", string(body)).
-			Warnf("请求错误")
+		logger.With("url", server, resp.Status, "body", string(body)).
+			Warnf("Request error")
 		return nil, fmt.Errorf("ocsp response err: %v", resp.Status)
 	}
 
@@ -64,19 +64,19 @@ func SendOcspRequest(server string, req []byte, leaf, issuer *x509.Certificate) 
 
 	parsedOcspResp, err := ocsp.ParseResponseForCert(body, leaf, issuer)
 	if err != nil {
-		v2log.With("body", string(body)).Errorf("ocsp 解析错误: %v", err)
-		return nil, errors.Wrap(err, "ocsp 解析错误")
+		logger.With("body", string(body)).Errorf("ocsp Parsing error: %v", err)
+		return nil, errors.Wrap(err, "ocsp Parsing error")
 	}
 
 	return parsedOcspResp, nil
 }
 
-// BlockOcspRequests 阻止 Ocsp 请求, 会导致 mTLS 握手失败
+// BlockOcspRequests Blocking OCSP requests will cause the MTLs handshake to fail
 func BlockOcspRequests() {
 	atomic.StoreInt64(&ocspBlockSign, 1)
 }
 
-// AllowOcspRequests 允许 Ocsp 请求
+// AllowOcspRequests
 func AllowOcspRequests() {
 	atomic.StoreInt64(&ocspBlockSign, 0)
 }

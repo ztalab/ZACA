@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/caclient"
-	"gitlab.oneitfarm.com/bifrost/capitalizone/pkg/spiffe"
-	logger "gitlab.oneitfarm.com/bifrost/cilog/v2"
+	"github.com/ztalab/ZACA/pkg/caclient"
+	"github.com/ztalab/ZACA/pkg/logger"
+	"github.com/ztalab/ZACA/pkg/spiffe"
 	"go.uber.org/zap/zapcore"
 	"io/ioutil"
 	"net/http"
@@ -30,7 +30,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	client, err := NewSidecarMTLSClient()
+	client, err := NewMTLSClient()
 	if err != nil {
 		logger.Fatalf("Client init error: %v", err)
 	}
@@ -44,18 +44,18 @@ func main() {
 			continue
 		}
 		body, _ := ioutil.ReadAll(resp.Body)
-		logger.Infof("请求结果: %v, %s", resp.StatusCode, body)
+		logger.Infof("Request result: %v, %s", resp.StatusCode, body)
 	}
 }
 
-// mTLS Client 使用示例
-func NewSidecarMTLSClient() (*http.Client, error) {
+// mTLS Client Use example
+func NewMTLSClient() (*http.Client, error) {
 	l, _ := logger.NewZapLogger(&logger.Conf{
 		// Level: 2,
 		Level: -1,
 	})
 	c := caclient.NewCAI(
-		caclient.WithCAServer(caclient.RoleSidecar, *caAddr),
+		caclient.WithCAServer(caclient.RoleDefault, *caAddr),
 		caclient.WithAuthKey(authKey),
 		caclient.WithOcspAddr(*ocspAddr),
 		caclient.WithLogger(l),
@@ -66,7 +66,7 @@ func NewSidecarMTLSClient() (*http.Client, error) {
 		UniqueID:  "client1",
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "Exchanger 初始化失败")
+		return nil, errors.Wrap(err, "Exchanger initialization failed")
 	}
 	cfger, err := ex.ClientTLSConfig("supreme")
 	if err != nil {
@@ -79,11 +79,10 @@ func NewSidecarMTLSClient() (*http.Client, error) {
 	tlsCfg := cfger.TLSConfig()
 	//tlsCfg.VerifyConnection = func(state tls.ConnectionState) error {
 	//	cert := state.PeerCertificates[0]
-	//	fmt.Println("服务器证书生成时间: ", cert.NotBefore.String())
+	//	fmt.Println("Server certificate generation time: ", cert.NotBefore.String())
 	//	return nil
 	//}
 	client := httpClient(tlsCfg)
-	// 启动证书轮换
 	go ex.RotateController().Run()
 	// util.ExtractCertFromExchanger(ex)
 
@@ -92,7 +91,7 @@ func NewSidecarMTLSClient() (*http.Client, error) {
 		panic(err)
 	}
 
-	fmt.Println("baidu 测试: ", resp.StatusCode)
+	fmt.Println("baidu test: ", resp.StatusCode)
 
 	return client, nil
 }

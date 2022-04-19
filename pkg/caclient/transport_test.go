@@ -26,8 +26,8 @@ func testLifeSpan(notBefore, notAfter time.Time, rate int) (remain time.Duration
 	certLong := notAfter.Sub(notBefore)
 	ava = certLong / time.Duration(rate)
 
-	fmt.Println("剩余 hours: ", remain.Hours())
-	fmt.Println("下次更换 hours: ", ava.Hours())
+	fmt.Println("Surplus hours: ", remain.Hours())
+	fmt.Println("Next replacement hours: ", ava.Hours())
 
 	return remain, ava
 }
