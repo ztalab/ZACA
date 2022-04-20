@@ -82,11 +82,11 @@ The classic usage of the ZACA SDK is that the client and the server use the cert
 ```go
 // mTLS Server Use example
 func NewMTLSServer() error {
-  // init
+    // init
 	c := caclient.NewCAI(
-    	  caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
-    		caclient.WithOcspAddr("127.0.0.1:8082"),
-        caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
+       caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
+       caclient.WithOcspAddr("127.0.0.1:8082"),
+       caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
 	)
     // Fill in workload parameters
    serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
@@ -114,12 +114,12 @@ func NewMTLSServer() error {
 ```go
 // mTLS Client Use example
 func NewMTLSClient() (*http.Client, error) {
-  // init
-	c := caclient.NewCAI(
-    	  caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
-    		caclient.WithOcspAddr("127.0.0.1:8082"),
-        caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
-	)
+   // init
+   c := caclient.NewCAI(
+	  caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
+	  caclient.WithOcspAddr("127.0.0.1:8082"),
+	  caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
+   )
     // Fill in workload parameters
    serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
       SiteID:    "test_site",
