@@ -28,14 +28,5 @@ compose:
 run:
 	go run main.go
 
-test:
-	go run main.go -env test
-
-rootca:
-	go run main.go -env test -envfile ".env.example" -rootca
-
-migration:
-	go run main.go -envfile ".env.example"
-
 clean:
 	rm -rf ./bin

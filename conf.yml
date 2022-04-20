@@ -1,14 +1,8 @@
-registry:
-  self-name: capitalizone.prod
-
 log:
   log-proxy:
     host: ""
     port: 6379
     key: ca_log
-
-redis:
-  nodes: []
 
 # Cascading CA configuration items
 keymanager:
@@ -26,16 +20,6 @@ keymanager:
 singleca:
   config-path: "/etc/capitalizone/config.json"
 
-election:
-  enabled: false
-  id: capitalizone-leader
-  baseon: configmap
-  always-leader: false
-
-gateway-nervs:
-  enabled: false
-  endpoint: ""
-
 ocsp-host: "http://127.0.0.1:8082"
 
 http:
@@ -51,7 +35,6 @@ vault:
   addr: ""
   token: ""
   prefix: ""
-  discover: "provider=k8s namespace=msp label_selector=\"app.kubernetes.io/name=vault\""
 
 swagger-enabled: false
 

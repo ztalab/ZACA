@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 	cfssl_config "github.com/ztalab/cfssl/config"
 
@@ -17,41 +16,17 @@ import (
 )
 
 const (
-	G_             = "IS"
-	ConfName       = "conf"
-	CmdlineEnvTest = "test"
-	CmdlineEnvProd = "prod"
-)
-
-var (
-	flagEnv     = flag.String("env", CmdlineEnvProd, "")
-	flagEnvfile = flag.String("envfile", ".env", "")
-	flagRootca  = flag.Bool("rootca", false, "")
+	G_       = "IS"
+	ConfName = "conf"
 )
 
 func parseConfigs(c *cli.Context) (core.Config, error) {
 	// Cmdline flags
 	flag.Parse()
-	godotenv.Load(*flagEnvfile)
 	// Default config
-	viper.SetConfigName(fmt.Sprintf("%v.%v", ConfName, CmdlineEnvTest))
+	viper.SetConfigName(fmt.Sprintf("%v", ConfName))
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
-		return core.Config{}, err
-	}
-
-	// Read ENV from cmdline
-	env := *flagEnv
-	// Merge ENV configs
-	if env == CmdlineEnvTest || os.Getenv(G_+"_ENV") == CmdlineEnvTest {
-		// test ENV
-		viper.SetConfigName(fmt.Sprintf("%v.%v", ConfName, CmdlineEnvTest))
-	} else {
-		// prod ENV
-		viper.SetConfigName(fmt.Sprintf("%v.%v", ConfName, CmdlineEnvProd))
-	}
-	viper.AddConfigPath(".")
-	if err := viper.MergeInConfig(); err != nil {
 		return core.Config{}, err
 	}
 
@@ -147,10 +122,6 @@ func parseConfigs(c *cli.Context) (core.Config, error) {
 	}
 
 	cfg.Signing.Default.OCSP = conf.OCSPHost
-
-	if *flagRootca {
-		conf.Keymanager.SelfSign = true
-	}
 
 	conf.Singleca.CfsslConfig = cfg
 
