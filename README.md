@@ -76,67 +76,7 @@ Start command：`zaca api`，Default listening port 8080
 $ go get github.com:ztalab/ZACA
 ```
 
-The classic usage of the ZACA SDK is that the client and the server use the certificate issued by the CA center for encrypted communication. The following is the usage of the sdk between the client and the server:
-#### Server
+The classic usage of the ZACA SDK is that the client and the server use the certificate issued by the CA center for encrypted communication. The following is the usage of the sdk between the client and the server.
 
-```go
-// mTLS Server Use example
-func NewMTLSServer() error {
-  // init
-	c := caclient.NewCAI(
-    	  caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
-    		caclient.WithOcspAddr("127.0.0.1:8082"),
-        caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
-	)
-    // Fill in workload parameters
-   serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
-      SiteID:    "test_site",
-      ClusterID: "cluster_test",
-      UniqueID:  "client1",
-   })
-   if err != nil {
-      return errors.Wrap(err, "Exchanger initialization failed")
-   }
-    // Obtain tls.Config
-   tlsCfg, err := serverEx.ServerTLSConfig()
-   go func() {
-      // Handle with tls.Config
-      httpsServer(tlsCfg)
-   }()
-   // Start certificate rotation
-   go serverEx.RotateController().Run()
-   return nil
-}
-```
-
-#### Client
-
-```go
-// mTLS Client Use example
-func NewMTLSClient() (*http.Client, error) {
-  // init
-	c := caclient.NewCAI(
-    	  caclient.WithCAServer(caclient.RoleDefault, "https://127.0.0.1:8081"),
-    		caclient.WithOcspAddr("127.0.0.1:8082"),
-        caclient.WithAuthKey("0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"),
-	)
-    // Fill in workload parameters
-   serverEx, err := c.NewExchanger(&spiffe.IDGIdentity{
-      SiteID:    "test_site",
-      ClusterID: "cluster_test",
-      UniqueID:  "client1",
-   })
-   if err != nil {
-      return nil, errors.Wrap(err, "Exchanger initialization failed")
-   }
-    // Obtain tls.Config
-    // Server Name It can be '', which is not filled in by default for inter service calls
-   tlsCfg, err := serverEx.ClientTLSConfig("")
-    // Handle With tls.Config
-   client := httpClient(tlsCfg)
-   // Start certificate rotation
-   go serverEx.RotateController().Run()
-   return client, nil
-}
-```
+See：[demo](https://github.com/ztalab/ZACA/tree/master/pkg/caclient/examples)
 
