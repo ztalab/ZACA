@@ -60,9 +60,10 @@ Start command：`zaca tls`，Default listening port 8081
 ### OCSP service
 
 OCSP online certificate status is used to query the certificate status information. OCSP returns the certificate online status information to quickly check whether the certificate has expired, whether it has been revoked and so on.
+
 Start command：`zaca ocsp`，Default listening port 8082
 
-### API services
+### API service
 
 Provide CA center API service, which can be accessed after the service is started`http://localhost:8080/swagger/index.html`，View API documentation.
 
