@@ -1,6 +1,6 @@
 # ZACA
 
-Zaca is a Ca pkitls toolkit developed based on cloudflare cfssl
+ZACA is a PKI developed based on cloudflare cfssl,Public key infrastructure (PKI) governs the issuance of digital certificates to protect sensitive data, provide unique digital identities for users, devices and applications and secure end-to-end communications.
 
 Zaca includes the following components：
 
@@ -8,6 +8,32 @@ Zaca includes the following components：
 2. API services, as some API services for certificate management.
 2. OCSP service is a service that queries the online status of certificates and has been signed by OCSP.
 2. SDK component, which is used for other services to access the CA SDK as a toolkit for certificate issuance and automatic rotation.
+
+## How the Certificate Creation Process Works
+
+The certificate creation process relies heavily on asymmetric encryption and works as follows: 
+
+- A private key is created and the corresponding public key gets computed 
+- The CA requests any identifying attributes of the private key owner and vets that information 
+- The public key and identifying attributes get encoded into a Certificate Signing Request (CSR) 
+- The CSR is signed by the key owner to prove possession of that private key 
+- The issuing CA validates the request and signs the certificate with the CA’s own private key 
+
+<img src="./images/image-20220425164057905.png" alt="image-20220425164057905" style="zoom:50%;" />
+
+Anyone can use the public portion of a certificate to verify that it was actually issued by the CA by confirming who owns the private key used to sign the certificate. And, assuming they deem that CA trustworthy, they can verify that anything they send to the certificate holder will actually go to the intended recipient and that anything signed using that certificate holder’s private key was indeed signed by that person/device. 
+
+One important part of this process to note is that the CA itself has its own private key and corresponding public key, which creates the need for CA hierarchies. 
+
+## How CA Hierarchies and Root CAs Create Layers of Trust
+
+Since each CA has a certificate of its own, layers of trust get created through CA hierarchies — in which CAs issue certificates for other CAs. However, this process is not circular, as there is ultimately a root certificate. Normally, certificates have an issuer and a subject as two separate parties, but these are the same parties for root CAs, meaning that root certificates are self-signed. As a result, people must inherently trust the root certificate authority to trust any certificates that trace back to it. 
+
+<img src="./images/image-20220425164028072.png" alt="image-20220425164028072" style="zoom:50%;" />
+
+## ZACA overall architecture and working mode
+
+![image-20220425165623191](./images/image-20220425165623191.png)
 
 ## Building
 
@@ -50,10 +76,10 @@ The configuration priority of environment variables is higher than the configura
 
 ### TLS service
 
-TLS service is used to issue certificates through control`IS_KEYMANAGER_SELF_SIGN` Environment variable to control whether to start as root ca.
+TLS service is used to issue certificates through control`IS_KEYMANAGER_SELF_SIGN` Environment variable to control whether to start as Root CA.
 
-- Started as root Ca, TLS service will self sign certificate.
-- When starting as an intermediate Ca, the TLS service needs to request the root CA signing certificate as its own CA certificate.
+- Started as root CA, TLS service will self sign certificate.
+- When starting as an intermediate CA, the TLS service needs to request the root CA signing certificate as its own CA certificate.
 
 Start command：`zaca tls`，Default listening port 8081
 
@@ -79,5 +105,5 @@ $ go get github.com:ztalab/ZACA
 
 The classic usage of the ZACA SDK is that the client and the server use the certificate issued by the CA center for encrypted communication. The following is the usage of the sdk between the client and the server.
 
-See：[demo](https://github.com/ztalab/ZACA/tree/master/pkg/caclient/examples)
+See：[Demo](https://github.com/ztalab/ZACA/tree/master/pkg/caclient/examples)
 
