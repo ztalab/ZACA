@@ -1,8 +1,10 @@
-<img src="./images/logo.png" alt="img" style="zoom:50%;" />
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![GoDoc](https://godoc.org/github.com/cloudflare/cfssl?status.svg)](https://github.com/ztalab/ZACA)
+<p align="center">
+<img src="./images/logo.png" 
+    width="40%" border="0" alt="IceFireDB">
+</p>
 
 # ZACA
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![GoDoc](https://godoc.org/github.com/cloudflare/cfssl?status.svg)](https://github.com/ztalab/ZACA)
 
 ZACA is a PKI developed based on cloudflare cfssl,Public key infrastructure (PKI) governs the issuance of digital certificates to protect sensitive data, provide unique digital identities for users, devices and applications and secure end-to-end communications.
 
