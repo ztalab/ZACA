@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./images/logo.png" 
+<img src="https://user-images.githubusercontent.com/52234994/165200623-c60e956b-5805-4088-bf58-f97ebd8ae8b4.png" 
     width="40%" border="0" alt="ZACA">
 </p>
 
@@ -25,7 +25,7 @@ The certificate creation process relies heavily on asymmetric encryption and wor
 - The CSR is signed by the key owner to prove possession of that private key 
 - The issuing CA validates the request and signs the certificate with the CA’s own private key 
 
-<img src="./images/image-20220425164057905.png" alt="image-20220425164057905" style="width:50%;" />
+<img src="https://user-images.githubusercontent.com/52234994/165200483-0b7e9698-552c-4a9f-b9b0-afce84e8c313.png" alt="image-20220425164057905" style="width:50%;" />
 
 Anyone can use the public portion of a certificate to verify that it was actually issued by the CA by confirming who owns the private key used to sign the certificate. And, assuming they deem that CA trustworthy, they can verify that anything they send to the certificate holder will actually go to the intended recipient and that anything signed using that certificate holder’s private key was indeed signed by that person/device. 
 
@@ -35,11 +35,11 @@ One important part of this process to note is that the CA itself has its own pri
 
 Since each CA has a certificate of its own, layers of trust get created through CA hierarchies — in which CAs issue certificates for other CAs. However, this process is not circular, as there is ultimately a root certificate. Normally, certificates have an issuer and a subject as two separate parties, but these are the same parties for root CAs, meaning that root certificates are self-signed. As a result, people must inherently trust the root certificate authority to trust any certificates that trace back to it. 
 
-<img src="./images/image-20220425164028072.png" alt="image-20220425164028072" style="width:50%;" />
+<img src="https://user-images.githubusercontent.com/52234994/165200520-842ecf88-bfea-441b-a1af-53260ce4085f.png" alt="image-20220425164028072" style="width:50%;" />
 
 ## ZACA overall architecture and working mode
 
-![image-20220425165623191](./images/image-20220425165623191.png)
+![image-20220425165623191](https://user-images.githubusercontent.com/52234994/165200574-ac647d20-1044-4580-8378-862d4fd4af9e.png)
 
 ## Building
 
