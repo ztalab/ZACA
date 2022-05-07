@@ -21,6 +21,8 @@ var (
 	authKey    = "0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"
 )
 
+// go run server.go -ca https://127.0.0.1:8081 -ocsp http://127.0.0.1:8082 -server https://127.0.0.1:6066
+
 func init() {
 	logger.GlobalConfig(logger.Conf{
 		Debug: true,
@@ -86,7 +88,7 @@ func NewMTLSClient() (*http.Client, error) {
 	go ex.RotateController().Run()
 	// util.ExtractCertFromExchanger(ex)
 
-	resp, err := client.Get("http://www.baidu.com")
+	resp, err := client.Get("http://www.google.com")
 	if err != nil {
 		panic(err)
 	}

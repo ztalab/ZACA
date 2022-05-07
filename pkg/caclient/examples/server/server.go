@@ -23,6 +23,8 @@ var (
 	authKey  = "0739a645a7d6601d9d45f6b237c4edeadad904f2fce53625dfdd541ec4fc8134"
 )
 
+// go run server.go -ca https://127.0.0.1:8081 -ocsp http://127.0.0.1:8082
+
 func init() {
 	logger.GlobalConfig(logger.Conf{
 		Debug: true,

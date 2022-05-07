@@ -1,12 +1,10 @@
 FROM golang:1.17.8-alpine AS builder
 
-ENV GO111MODULE=on \
-    GOPROXY=https://goproxy.oneitfarm.com,https://goproxy.cn,direct
-
+ENV GO111MODULE=on
 WORKDIR /build
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o zaca .
+RUN CGO_ENABLED=0 go build -o zaca .
 
 FROM ubuntu:20.04
 
@@ -21,7 +19,7 @@ RUN chmod +x zaca
 CMD ["./zaca", "api"]
 
 # TLS service
-# CMD ["./zaca", "api"]
+# CMD ["./zaca", "tls"]
 
 # OCSP service
-# CMD ["./zaca", "api"]
+# CMD ["./zaca", "ocsp"]
