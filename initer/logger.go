@@ -1,10 +1,10 @@
 package initer
 
 import (
+	"github.com/ztalab/ZACA/pkg/logger/redis_hook"
 	"log"
 
 	"github.com/ztalab/ZACA/pkg/logger"
-	"github.com/ztalab/ZACA/pkg/logger/redis_hook"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/ztalab/ZACA/core"
@@ -23,10 +23,12 @@ func initLogger(config *core.Config) {
 		conf.Level = zapcore.DebugLevel
 	} else {
 		conf.Level = zapcore.InfoLevel
-		conf.HookConfig = &redis_hook.HookConfig{
-			Key:  config.Log.LogProxy.Key,
-			Host: config.Log.LogProxy.Host,
-			Port: config.Log.LogProxy.Port,
+		if config.Log.LogProxy.Host != "" {
+			conf.HookConfig = &redis_hook.HookConfig{
+				Key:  config.Log.LogProxy.Key,
+				Host: config.Log.LogProxy.Host,
+				Port: config.Log.LogProxy.Port,
+			}
 		}
 	}
 	if warn := logger.GlobalConfig(*conf); warn != nil {

@@ -120,7 +120,10 @@ func newLogger(c *Conf) (l *zap.Logger, err error) {
 	}
 	conf.Level = zap.NewAtomicLevelAt(c.Level)
 	if c.HookConfig != nil {
-		hook, _ := redis_hook.NewHook(*c.HookConfig)
+		hook, err := redis_hook.NewHook(*c.HookConfig)
+		if err != nil {
+			return nil, err
+		}
 		_ciCore = NewCiCore(hook)
 		l, err = conf.Build(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 			return zapcore.NewTee(core, _ciCore)
