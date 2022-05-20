@@ -106,7 +106,7 @@ Start command：`zaca api`，Default listening port 8080
 ### SDK Installation
 
 ```
-$ go get github.com:ztalab/ZACA
+$ go get github.com/ztalab/ZACA
 ```
 
 The classic usage of the ZACA SDK is that the client and the server use the certificate issued by the CA center for encrypted communication. The following is the usage of the sdk between the client and the server.
