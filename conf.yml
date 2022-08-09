@@ -30,6 +30,12 @@ http:
 mysql:
   dsn: ""
 
+vault:
+  enabled: false
+  addr: ""
+  token: ""
+  prefix: ""
+
 swagger-enabled: false
 
 debug: false
