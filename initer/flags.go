@@ -55,6 +55,12 @@ func InitConfigs(c *cli.Context, configURL string) (core.Config, error) {
 	if v := os.Getenv("IS_KEYMANAGER_UPPER_CA"); v != "" {
 		conf.Keymanager.UpperCa = strings.Split(v, " ")
 	}
+	if v := os.Getenv("IS_HTTP_CA_LISTEN"); v != "" {
+		conf.HTTP.CaListen = v
+	}
+	if v := os.Getenv("IS_KEYMANAGER_SELF_SIGN"); v != "true" {
+		conf.Keymanager.SelfSign = true
+	}
 	// ref: https://github.com/golang-migrate/migrate/issues/313
 	if !strings.Contains(conf.Mysql.Dsn, "multiStatements") {
 		conf.Mysql.Dsn += "&multiStatements=true"
