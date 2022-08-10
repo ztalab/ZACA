@@ -1,0 +1,40 @@
+/*
+Copyright 2022-present The Ztalab Authors.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package util
+
+import (
+	"crypto/sha1"
+	"encoding/hex"
+	"math"
+	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ztalab/ZACA/pkg/memorycacher"
+)
+
+var MapCache *memorycacher.Cache
+
+func init() {
+	MapCache = memorycacher.New(2*time.Minute, 10*time.Minute, math.MaxInt64)
+}
+
+func GinRequestHash(g *gin.Context) string {
+	url := g.Request.URL.String()
+	body := g.Request.ContentLength
+
+	sha := sha1.Sum([]byte(url + strconv.FormatInt(body, 10)))
+
+	return hex.EncodeToString(sha[:])
+}
