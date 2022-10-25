@@ -24,14 +24,13 @@ import (
 	"github.com/ztalab/ZACA/database/mysql/cfssl-model/dao"
 	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
 	"github.com/ztalab/ZACA/util"
-	"github.com/ztalab/zaca-sdk/caclient"
 )
 
 const AllCertsCacheKey = "all_certs_cache"
 
 // WorkloadUnit UniqueID Divided workload unit
 type WorkloadUnit struct {
-	Role          caclient.Role `json:"role"`
+	Role          string `json:"role"`
 	ValidNum      int           `json:"valid_num"`       // Number of valid certificates
 	FirstIssuedAt time.Time     `json:"first_issued_at"` // Date of first issuance of certificate
 	UniqueId      string        `json:"unique_id"`
@@ -87,7 +86,7 @@ func (l *Logic) WorkloadUnits(params *WorkloadUnitsParams) ([]*WorkloadUnit, int
 			}
 		}
 		unit := &WorkloadUnit{
-			Role:          caclient.Role(firstCert.CaLabel.String),
+			Role:          firstCert.CaLabel.String,
 			ValidNum:      len(certs),
 			FirstIssuedAt: firstCert.IssuedAt,
 			UniqueId:      firstCert.CommonName.String,

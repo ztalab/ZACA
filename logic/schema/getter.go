@@ -25,7 +25,6 @@ import (
 
 	"github.com/ztalab/ZACA/database/mysql/cfssl-model/model"
 	"github.com/ztalab/ZACA/pkg/spiffe"
-	"github.com/ztalab/zaca-sdk/caclient"
 )
 
 func GetFullCertByX509Cert(cert *x509.Certificate) *FullCert {
@@ -63,7 +62,7 @@ func GetFullCertByModelCert(row *model.Certificates) (*FullCert, error) {
 			SN:        row.SerialNumber,
 			AKI:       row.AuthorityKeyIdentifier,
 			CN:        row.CommonName.String,
-			Role:      caclient.Role(row.CaLabel.String),
+			Role:      row.CaLabel.String,
 			UniqueId:  row.CommonName.String,
 			Status:    row.Status,
 			IssuedAt:  row.IssuedAt,
