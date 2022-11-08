@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-Thank you for your interest in ZTDBP!
+Thank you for your interest in Ztalab!
 
 This project welcomes contributions and suggestions. Most contributions require you to signoff on your commits via
 the Developer Certificate of Origin (DCO). When you submit a pull request, a DCO-bot will automatically determine
@@ -12,7 +12,7 @@ This project has adopted the [Contributor Covenant Code of Conduct](CODE-OF-COND
 
 Contributions come in many forms: submitting issues, writing code, participating in discussions and community calls.
 
-This document provides the guidelines for how to contribute to the ZTDBP project.
+This document provides the guidelines for how to contribute to the Ztalab project.
 
 ## Issues
 
